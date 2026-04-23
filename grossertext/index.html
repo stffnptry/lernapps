@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Großer Text</title>
+  <link href="https://fonts.googleapis.com/css2?family=ABeeZee:ital@0;1&family=Playwrite+DE+LA&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'ABeeZee', sans-serif;
+      background-color: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 1rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .input-container {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 2px solid #333;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 8px rgba(0, 102, 204, 0.3);
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .toggle-label {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #0066cc;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .display-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+      padding: 2rem;
+      overflow: hidden;
+      font-weight: 700;
+      line-height: 1.2;
+      word-wrap: break-word;
+      word-break: break-word;
+      text-align: center;
+    }
+
+    .text-content {
+      font-size: clamp(1rem, 20vw, 25rem);
+      animation: fadeIn 0.2s ease-in;
+      color: #005BAC;
+      white-space: nowrap;
+    }
+
+    .font-print {
+      font-family: 'ABeeZee', sans-serif;
+      font-style: normal;
+    }
+
+    .font-script {
+      font-family: 'Playwrite DE LA', cursive;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0.8;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 0.75rem;
+      }
+
+      .controls {
+        margin-bottom: 0.75rem;
+      }
+
+      .display-area {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <div class="input-container">
+      <input
+        type="text"
+        id="textInput"
+        placeholder="Text eingeben..."
+        autofocus
+      >
+    </div>
+    <div class="toggle-container">
+      <label class="toggle-label" id="fontLabel">Druckbuchstaben</label>
+      <label class="switch">
+        <input type="checkbox" id="fontToggle">
+        <span class="slider"></span>
+      </label>
+      <label class="toggle-label" id="fontLabelRight">Schreibschrift</label>
+    </div>
+  </div>
+
+  <div class="display-area">
+    <div class="text-content font-print" id="textDisplay"></div>
+  </div>
+
+  <script>
+    const textInput = document.getElementById('textInput');
+    const textDisplay = document.getElementById('textDisplay');
+    const fontToggle = document.getElementById('fontToggle');
+    const fontLabel = document.getElementById('fontLabel');
+    const fontLabelRight = document.getElementById('fontLabelRight');
+
+    // Load saved preference
+    const savedFont = localStorage.getItem('fontPreference') || 'print';
+    fontToggle.checked = savedFont === 'script';
+    updateFont(savedFont);
+
+    // Update display text
+    textInput.addEventListener('input', () => {
+      textDisplay.textContent = textInput.value || '';
+    });
+
+    // Handle font toggle
+    fontToggle.addEventListener('change', () => {
+      const newFont = fontToggle.checked ? 'script' : 'print';
+      localStorage.setItem('fontPreference', newFont);
+      updateFont(newFont);
+    });
+
+    function updateFont(font) {
+      textDisplay.classList.remove('font-print', 'font-script');
+
+      if (font === 'script') {
+        textDisplay.classList.add('font-script');
+        fontLabel.style.opacity = '0.6';
+        fontLabelRight.style.opacity = '1';
+      } else {
+        textDisplay.classList.add('font-print');
+        fontLabel.style.opacity = '1';
+        fontLabelRight.style.opacity = '0.6';
+      }
+    }
+
+    // Function to fit text to width
+    function fitTextToWidth() {
+      if (!textDisplay.textContent) {
+        textDisplay.style.fontSize = '2rem';
+        return;
+      }
+
+      const displayArea = document.querySelector('.display-area');
+      const padding = 40;
+      const maxWidth = displayArea.clientWidth - padding;
+      const maxHeight = displayArea.clientHeight - padding;
+
+      let fontSize = 200;
+      textDisplay.style.fontSize = fontSize + 'px';
+
+      while (textDisplay.scrollWidth > maxWidth && fontSize > 10) {
+        fontSize -= 2;
+        textDisplay.style.fontSize = fontSize + 'px';
+      }
+
+      while (textDisplay.scrollHeight > maxHeight && fontSize > 10) {
+        fontSize -= 2;
+        textDisplay.style.fontSize = fontSize + 'px';
+      }
+    }
+
+    // Update text and fit width
+    textInput.addEventListener('input', () => {
+      textDisplay.textContent = textInput.value || '';
+      fitTextToWidth();
+    });
+
+    // Refit on window resize
+    window.addEventListener('resize', fitTextToWidth);
+
+    // Initial state
+    textDisplay.textContent = '';
+  </script>
+</body>
+</html>

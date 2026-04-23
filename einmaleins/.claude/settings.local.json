@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sips -s format png \"/Users/steffenpetry/Downloads/schoene-delfine-schwimmen-cartoon-vektor-ikonen-illustration-tier-natur-ikonen-isolierte-flache-vektor_138676-12582.avif\" --out /tmp/delfin_preview.png)",
+      "Bash(sips -s format png -Z 220 \"/Users/steffenpetry/Downloads/schoene-delfine-schwimmen-cartoon-vektor-ikonen-illustration-tier-natur-ikonen-isolierte-flache-vektor_138676-12582.avif\" --out /tmp/delfin_small.png)",
+      "Bash(pip3 install:*)",
+      "Bash(python3 -c \"from PIL import Image; print\\(''OK''\\)\")",
+      "Bash(python3 -:*)"
+    ]
+  }
+}

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Die Grammatik-Giraffe</title>
+    <link rel="icon" href="giraffe.png">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <nav class="nav-container">
+        <button class="tab-btn active" onclick="openTab('konjugationen', this)">Konjugationen</button>
+        <button class="tab-btn" onclick="openTab('kasus', this)">Kasus</button>
+        <button class="tab-btn" onclick="openTab('wortarten', this)">Wortarten</button>
+        <button class="tab-btn" onclick="openTab('steigerungen', this)">Steigerungen</button>
+        <button class="tab-btn" onclick="openTab('lernkarten', this)">Lernkarten</button>
+    </nav>
+
+    <main class="main-wrapper">
+        <header class="header-area">
+            <div class="logo-wrapper">
+                <img src="giraffe.png" class="header-logo-img" alt="Giraffe Logo">
+            </div>
+            <h1 id="topic-title">Konjugationen</h1>
+            <p id="topic-subtitle">Bilde die richtige Form des Verbs!</p>
+        </header>
+
+        <!-- KONJUGATIONEN -->
+        <section id="konjugationen" class="content active">
+            <div class="wheel-grid">
+                <div class="small-wheel"><span class="label-small">Person</span><div class="slot-container"><div id="d-w2" class="slot-strip"><div>?</div></div></div></div>
+                <div class="small-wheel"><span class="label-small">Numerus</span><div class="slot-container"><div id="d-w1" class="slot-strip"><div>?</div></div></div></div>
+                <div class="small-wheel"><span class="label-small">Zeitform</span><div class="slot-container"><div id="d-w3" class="slot-strip"><div>?</div></div></div></div>
+                <div class="small-wheel"><span class="label-small">Verb</span><div class="slot-container"><div id="d-w4" class="slot-strip"><div>?</div></div></div></div>
+            </div>
+            <div id="d-task-area" class="task-description"></div>
+            <div class="controls">
+                <button class="btn-main" onclick="spinKonjugation()">Drehen!</button>
+                <button class="btn-main solution-btn" id="d-solBtn" disabled onclick="showKonjugationSolution()">Lösung anzeigen</button>
+                <button class="btn-main grey-btn" onclick="resetTab('konjugationen')">Mischen!</button>
+            </div>
+            <a href="javascript:void(0)" class="help-link" onclick="toggleHelp('help-konj')">💡 Hilfe & Definitionen</a>
+              <div id="help-konj" class="help-box">
+<h3 style="margin-bottom: 10px;">Konjugieren: Finde die Form!</h3>
+    <p style="margin-bottom: 15px;">Beim Konjugieren veränderst du die Endung eines Verbs. Achte auf diese vier Hinweise, um die Lösung zu finden:</p>
+    
+    <ul style="list-style-type: none; padding-left: 0;">
+        <li style="margin-bottom: 12px;">
+            <strong>Person</strong><br>
+            Wer handelt? 👉 Ich, Du, Er/Sie/Es, Wir, Ihr oder Sie.
+        </li>
+        
+        <li style="margin-bottom: 12px;">
+            <strong>Numerus</strong><br>
+            Wie viele Personen sind es? 👉 Singular (Einzahl) oder Plural (Mehrzahl).
+        </li>
+
+        <li style="margin-bottom: 12px;">
+            <strong>Zeitform</strong><br>
+            Wann geschieht etwas? (Vorbei, Jetzt oder Zukunft).<br>
+            <div style="color: #666; font-size: 0.9em; margin-top: 4px; padding-left: 10px; border-left: 0px solid #eee;">
+                <strong>• Präsens (Gegenwart):</strong> Passiert jetzt oder regelmäßig (z. B. „ich lache“).<br>
+                <strong>• Perfekt (Vollendete Gegenwart):</strong> Ist vorbei. Meist beim Sprechen (z. B. „ich habe gelacht“).<br>
+                <strong>• Präteritum (Vergangenheit):</strong> Ist vorbei. Meist beim Schreiben (z. B. „ich lachte“).
+            </div>
+        </li>
+
+            <li style="margin-bottom: 12px;">
+            <strong>Verb</strong><br>
+            Das ist das Grundwort (Infinitiv), das du anpassen musst.<br>
+        </li>
+    </ul>
+            </div>
+        </section>
+
+        <!-- KASUS -->
+        <section id="kasus" class="content">
+            <div class="card-display">
+                <div class="slot-container-large"><div id="k-sentence" class="slot-strip-large"><div>Bereit?</div></div></div>
+            </div>
+            <div class="controls">
+                <button class="btn-main" onclick="spinKasus()">Drehen!</button>
+                <button class="btn-main grey-btn" onclick="resetTab('kasus')">Mischen!</button>
+            </div>
+            <div id="kasus-options" class="options-grid hidden-options">
+                <div class="option-card" onclick="checkKasus('Nominativ', this)">1. Nominativ</div>
+                <div class="option-card" onclick="checkKasus('Genitiv', this)">2. Genitiv</div>
+                <div class="option-card" onclick="checkKasus('Dativ', this)">3. Dativ</div>
+                <div class="option-card" onclick="checkKasus('Akkusativ', this)">4. Akkusativ</div>
+            </div>
+            <a href="javascript:void(0)" class="help-link" onclick="toggleHelp('help-kasus')">💡 Hilfe & Definitionen</a>
+            <div id="help-kasus" class="help-box">
+<h3 style="margin-bottom: 10px;">Die 4 Fälle: Wer macht was?</h3>
+    <p style="margin-bottom: 15px;">Die Fälle (Kasus) verraten dir die Rolle eines Nomens im Satz. Nutze die Kontrollfragen, um den Fall zu bestimmen:</p>
+    
+    <ul style="list-style-type: none; padding-left: 0;">
+        <li style="margin-bottom: 12px;">
+            <strong>Nominativ (Subjekt)</strong><br>
+            Das ist die Person oder Sache, die handelt.<br>
+            <span style="color: #666; font-size: 0.9em;">👉 Frage: Wer oder was?</span>
+        </li>
+        
+        <li style="margin-bottom: 12px;">
+            <strong>Genitiv (Besitz)</strong><br>
+            Zeigt an, wem etwas gehört oder zugehörig ist.<br>
+            <span style="color: #666; font-size: 0.9em;">👉 Frage: Wessen?</span>
+        </li>
+        
+        <li style="margin-bottom: 12px;">
+            <strong>Dativ (Empfänger)</strong><br>
+            Bezeichnet oft den Empfänger, dem etwas gegeben wird.<br>
+            <span style="color: #666; font-size: 0.9em;">👉 Frage: Wem?</span>
+        </li>
+        
+        <li style="margin-bottom: 12px;">
+            <strong>Akkusativ (Objekt)</strong><br>
+            Bezeichnet das Ziel, das von der Handlung betroffen ist.<br>
+            <span style="color: #666; font-size: 0.9em;">👉 Frage: Wen oder was?</span>
+        </li>
+    </ul>
+            </div>
+        </section>
+
+        <!-- WORTARTEN -->
+        <section id="wortarten" class="content">
+            <div class="card-display">
+                <div class="slot-container-large"><div id="w-sentence" class="slot-strip-large"><div>Los geht's!</div></div></div>
+            </div>
+            <div class="controls">
+                <button class="btn-main" onclick="spinWortarten()">Drehen!</button>
+                <button class="btn-main grey-btn" onclick="resetTab('wortarten')">Mischen!</button>
+            </div>
+            <div id="wortarten-options" class="options-grid hidden-options">
+                <div class="option-card" onclick="checkWortart('Nomen', this)">Nomen</div>
+                <div class="option-card" onclick="checkWortart('Verb', this)">Verb</div>
+                <div class="option-card" onclick="checkWortart('Adjektiv', this)">Adjektiv</div>
+                <div class="option-card" onclick="checkWortart('Pronomen', this)">Pronomen</div>
+                <div class="option-card" onclick="checkWortart('bestimmter Artikel', this)">bestimmter Artikel</div>
+                <div class="option-card" onclick="checkWortart('unbestimmter Artikel', this)">unbestimmter Artikel</div>
+            </div>
+            <a href="javascript:void(0)" class="help-link" onclick="toggleHelp('help-wort')">💡 Hilfe & Definitionen</a>
+            <div id="help-wort" class="help-box">
+                <h3 style="margin-bottom: 10px;">Die Wortarten: Welches Wort ist das?</h3>
+                    <p style="margin-bottom: 15px;">Jedes Wort hat eine bestimmte Aufgabe im Satz. Hier sind die fünf wichtigsten Kategorien:</p>
+                    
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li style="margin-bottom: 12px;">
+                            <strong>Nomen (Dinge)</strong><br>
+                            Bezeichnen Lebewesen, Gegenstände oder Gefühle.<br>
+                            <span style="color: #666; font-size: 0.9em;">👉 Merkmal: Sie werden großgeschrieben.</span>
+                        </li>
+                        
+                        <li style="margin-bottom: 12px;">
+                            <strong>Verben (Tun)</strong><br>
+                            Beschreiben eine Handlung, einen Vorgang oder Zustand.<br>
+                            <span style="color: #666; font-size: 0.9em;">👉 Frage: Was tut jemand? Was geschieht?</span>
+                        </li>
+                        
+                        <li style="margin-bottom: 12px;">
+                            <strong>Adjektive (Wie)</strong><br>
+                            Beschreiben Eigenschaften von Dingen oder Personen genauer.<br>
+                            <span style="color: #666; font-size: 0.9em;">👉 Frage: Wie ist etwas?</span>
+                        </li>
+                        
+                        <li style="margin-bottom: 12px;">
+                            <strong>Pronomen (Ersatz)</strong><br>
+                            Stehen stellvertretend für ein Nomen (z. B. <em>er, sie, es</em>).<br>
+                            <span style="color: #666; font-size: 0.9em;">👉 Funktion: Sie vermeiden Wortwiederholungen.</span>
+                        </li>
+                        
+                        <li style="margin-bottom: 12px;">
+                            <strong>Artikel (Begleiter)</strong><br>
+                            Stehen direkt vor dem Nomen und begleiten es (z. B. <em>der, eine</em>).<br>
+                            <span style="color: #666; font-size: 0.9em;">👉 Funktion: Sie zeigen das Geschlecht und den Fall an.</span>
+                        </li>
+                    </ul>
+            </div>
+        </section>
+
+        <!-- STEIGERUNGEN -->
+        <section id="steigerungen" class="content">
+            <div class="card-display">
+                <span class="label-small">ADJEKTIV</span>
+                <div class="slot-container-large"><div id="s-adj" class="slot-strip-large"><div>?</div></div></div>
+            </div>
+            <div class="controls">
+                <button class="btn-main" onclick="spinSteigerung()">Drehen!</button>
+                <button class="btn-main solution-btn" id="s-solBtn" disabled onclick="showSteigerungSolution()">Lösung anzeigen</button>
+                <button class="btn-main grey-btn" onclick="resetTab('steigerungen')">Mischen!</button>
+            </div>
+            <a href="javascript:void(0)" class="help-link" onclick="toggleHelp('help-steig')">💡 Hilfe & Definitionen</a>
+            <div id="help-steig" class="help-box">
+                <h3 style="margin-bottom: 10px;">Steigerung: Dinge vergleichen</h3>
+                    <p style="margin-bottom: 15px;">Adjektive können gesteigert werden, um Unterschiede deutlich zu machen. Es gibt drei Stufen:</p>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li style="margin-bottom: 12px;">
+                            <strong>Positiv (Grundstufe)</strong><br>
+                            Das Adjektiv in seiner normalen Form.<br>
+                            <span style="color: #666; font-size: 0.9em;">👉 Beispiel: klein</span>
+                        </li>
+                        
+                        <li style="margin-bottom: 12px;">
+                            <strong>Komparativ (Vergleichsstufe)</strong><br>
+                            Die erste Steigerung (Vergleich von zwei Dingen).<br>
+                            <span style="color: #666; font-size: 0.9em;">👉 Beispiel: kleiner</span>
+                        </li>
+                        
+                        <li style="margin-bottom: 12px;">
+                            <strong>Superlativ (Höchststufe)</strong><br>
+                            Die höchste Form (nichts ist mehr als das).<br>
+                            <span style="color: #666; font-size: 0.9em;">👉 Beispiel: am kleinsten</span>
+                        </li>
+                    </ul>
+                    <p><span style="color: #FE9E43; font-size: 1.1em;"><b>Vorsicht:</b></span> Nicht alle Adjektive können gesteigert werden!</p>
+            </div>
+        </section>
+
+        <!-- LERNKARTEN -->
+        <section id="lernkarten" class="content">
+            <div class="stack-wrapper">
+                <div class="card-decorator deco-1" id="deco-1"></div>
+                <div class="card-decorator deco-2" id="deco-2"></div>
+                <div class="flashcard-container">
+                    <div class="flashcard" id="current-card" onclick="this.classList.toggle('is-flipped')">
+                        <div class="card-face card-front" id="card-front-face"><span class="label-small">BEGRIFF</span><h2 id="card-term">...</h2></div>
+                        <div class="card-face card-back"><span class="label-small">ERKLÄRUNG</span><div id="card-def" class="card-def-text">...</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn-main orange-btn" id="next-card-btn" onclick="shuffleAndNext()">Nächste Karte!</button>
+                <button class="btn-main grey-btn" onclick="resetTab('lernkarten')">Mischen!</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="feedback" class="feedback-banner">
+        <div id="fb-icon-box" class="fb-icon-circle"></div>
+        <div class="fb-text"><h4 id="fb-title"></h4><p id="fb-desc"></p></div>
+        <div class="fb-close-container" onclick="closeFeedback()">
+            <div class="fb-close">×</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steffens Lern-Apps</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #fffdf7;
+      --yellow: oklch(88% 0.16 88);
+      --yellow-dark: oklch(72% 0.16 88);
+      --blue: oklch(78% 0.14 240);
+      --blue-dark: oklch(55% 0.14 240);
+      --green: oklch(80% 0.14 155);
+      --green-dark: oklch(55% 0.14 155);
+      --text: #2d2a20;
+      --text-light: #6b6457;
+      --card-bg: #ffffff;
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 15% 20%, oklch(92% 0.10 88 / 0.5) 0%, transparent 40%),
+        radial-gradient(circle at 85% 75%, oklch(88% 0.10 240 / 0.4) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, oklch(94% 0.06 155 / 0.3) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 56px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .header-emoji {
+      font-size: 72px;
+      display: block;
+      margin-bottom: 12px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .header h1 {
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    .header h1 span {
+      color: var(--yellow-dark);
+    }
+
+    .greeting {
+      margin-top: 16px;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--text-light);
+      font-weight: 600;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+      text-wrap: pretty;
+    }
+
+    /* Category filter */
+    .filters {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .filter-btn {
+      padding: 8px 22px;
+      border-radius: 100px;
+      border: 2.5px solid transparent;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+      color: var(--text-light);
+      border-color: #e5e0d5;
+    }
+
+    .filter-btn:hover {
+      transform: scale(1.05);
+      border-color: var(--yellow-dark);
+      color: var(--text);
+    }
+
+    .filter-btn.active {
+      background: var(--yellow);
+      border-color: var(--yellow-dark);
+      color: var(--text);
+    }
+
+    .filter-btn[data-cat="Mathe"].active {
+      background: var(--yellow);
+      border-color: var(--yellow-dark);
+    }
+
+    .filter-btn[data-cat="Deutsch"].active {
+      background: var(--blue);
+      border-color: var(--blue-dark);
+    }
+
+    /* Cards grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    /* Responsive grid */
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .card:hover .card-arrow {
+      transform: translateX(4px);
+    }
+
+    .card-visual {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-visual .placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .card-visual .placeholder-icon {
+      font-size: 18px;
+      color: rgba(0,0,0,0.3);
+    }
+
+    .card-visual .placeholder-label {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      font-weight: bold;
+      color: rgba(0,0,0,0.3);
+      text-align: center;
+      padding: 0 16px;
+      line-height: 1.4;
+    }
+
+    /* Diagonal stripe pattern for placeholder */
+    .card[data-cat="Mathe"] .card-visual {
+      background-color: var(--yellow);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(255,255,255,0.25) 8px,
+        rgba(255,255,255,0.25) 16px
+      );
+    }
+    .card[data-cat="Deutsch"] .card-visual {
+      background-color: var(--blue);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(255,255,255,0.25) 8px,
+        rgba(255,255,255,0.25) 16px
+      );
+    }
+
+    .card-body {
+      padding: 22px 24px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    .badge {
+      flex-shrink: 0;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    [data-cat="Mathe"] .badge { background: var(--yellow); color: oklch(40% 0.12 88); }
+    [data-cat="Deutsch"] .badge { background: var(--blue); color: oklch(28% 0.10 240); }
+
+    .card-desc {
+      font-size: 0.98rem;
+      color: var(--text-light);
+      line-height: 1.55;
+      font-weight: 600;
+      text-wrap: pretty;
+    }
+
+    .card-cta {
+      margin-top: auto;
+      padding-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .card-arrow {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      font-style: normal;
+    }
+
+    /* Hidden cards */
+    .card.hidden {
+      display: none;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 64px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      font-weight: 600;
+      animation: fadeUp 0.6s 0.5s ease both;
+    }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:nth-child(1) { animation-delay: 0.25s; }
+    .card:nth-child(2) { animation-delay: 0.38s; }
+    .card:nth-child(3) { animation-delay: 0.51s; }
+    .card:nth-child(4) { animation-delay: 0.64s; }
+
+    /* Tweaks panel */
+    #tweaks-panel {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+      padding: 20px;
+      width: 260px;
+      z-index: 100;
+      font-family: 'Nunito', sans-serif;
+      border: 2px solid #f0ece2;
+    }
+
+    #tweaks-panel h3 {
+      font-size: 0.9rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      color: var(--text);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .tweak-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+
+    .tweak-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-light);
+    }
+
+    .tweak-select, .tweak-input {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 2px solid #e5e0d5;
+      border-radius: 8px;
+      padding: 4px 8px;
+      color: var(--text);
+      background: var(--bg);
+      cursor: pointer;
+    }
+
+    .tweak-toggle {
+      width: 40px;
+      height: 22px;
+      border-radius: 100px;
+      background: #e5e0d5;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .tweak-toggle.on { background: var(--yellow-dark); }
+    .tweak-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: white;
+      transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .tweak-toggle.on::after { left: 21px; }
+  </style>
+  <template id="__bundler_thumbnail" data-bg-color="#fffdf7">
+    <svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+      <rect width="900" height="600" fill="#fffdf7"/>
+      <text x="450" y="120" text-anchor="middle" font-size="80">🎒</text>
+      <rect x="60" y="180" width="370" height="200" rx="24" fill="oklch(88% 0.16 88)"/>
+      <rect x="470" y="180" width="370" height="200" rx="24" fill="oklch(78% 0.14 240)"/>
+      <rect x="80" y="400" width="200" height="20" rx="10" fill="#e5e0d5"/>
+      <rect x="490" y="400" width="200" height="20" rx="10" fill="#e5e0d5"/>
+    </svg>
+  </template>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Header -->
+  <header class="header">
+    <span class="header-emoji">🎒</span>
+    <h1>Steffens <span>Lern-Apps</span></h1>
+    <p class="greeting">Hallo! Hier findest du tolle Übungen zum Lernen. Klick einfach auf eine App und leg los! 🚀</p>
+  </header>
+
+  <!-- Category Filter -->
+  <div class="filters">
+    <button class="filter-btn active" data-cat="Alle" onclick="filterCards('Alle', this)">🌟 Alle</button>
+    <button class="filter-btn" data-cat="Mathe" onclick="filterCards('Mathe', this)">🔢 Mathe</button>
+    <button class="filter-btn" data-cat="Deutsch" onclick="filterCards('Deutsch', this)">✏️ Deutsch</button>
+  </div>
+
+  <!-- App Cards -->
+  <div class="grid" id="grid">
+
+    <a class="card" data-cat="Mathe" href="./einmaleins/">
+      <div class="card-visual">
+        <img src="einmaleins.png" alt="Einmaleins">
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <h2 class="card-title">Einmaleins</h2>
+          <span class="badge">🔢 Mathe</span>
+        </div>
+        <p class="card-desc">Wähle aus, welche Reihen du üben möchtest, und starte ein kurzweiliges Quiz! Perfekt zum Einmaleins lernen.</p>
+        <div class="card-cta">Jetzt üben <i class="card-arrow">→</i></div>
+      </div>
+    </a>
+
+    <a class="card" data-cat="Deutsch" href="./grosseschrift/">
+      <div class="card-visual">
+        <img src="grossertext.png" alt="GrosseSchrift">
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <h2 class="card-title">Große Schrift</h2>
+          <span class="badge">✏️ Deutsch</span>
+        </div>
+        <p class="card-desc">„Wie schreibt man das?" – Zeig es deinem Kind! Buchstaben und Wörter in Druck- oder Schreibschrift anzeigen.</p>
+        <div class="card-cta">Jetzt ansehen <i class="card-arrow">→</i></div>
+      </div>
+    </a>
+
+    <a class="card" data-cat="Deutsch" href="./grammatikgiraffe/">
+      <div class="card-visual">
+        <img src="giraffe.png" alt="GrammatikGirarre">
+      </div>
+      <div class="card-body">
+        <div class="card-top">
+          <h2 class="card-title">Die Grammatikgiraffe</h2>
+          <span class="badge">✏️ Deutsch</span>
+        </div>
+        <p class="card-desc">Übe Konjugationen, Kasus, Wortarten und Steigerungen!</p>
+        <div class="card-cta">Jetzt ansehen <i class="card-arrow">→</i></div>
+      </div>
+    </a>
+
+  </div>
+
+  <footer class="footer">
+    Gemacht mit ❤️ von Steffen · Viel Spaß beim Lernen!
+  </footer>
+
+</div>
+
+<!-- Tweaks Panel -->
+<div id="tweaks-panel">
+  <h3>✏️ Tweaks</h3>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Akzentfarbe</span>
+    <select class="tweak-select" id="tweak-color" onchange="applyTweaks()">
+      <option value="yellow">☀️ Gelb</option>
+      <option value="green">🌿 Grün</option>
+      <option value="pink">🌸 Rosa</option>
+    </select>
+  </div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Große Schrift</span>
+    <button class="tweak-toggle" id="tweak-bigtext" onclick="toggleBigText(this)"></button>
+  </div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Animation</span>
+    <button class="tweak-toggle on" id="tweak-anim" onclick="toggleAnim(this)"></button>
+  </div>
+</div>
+
+<script>
+  // Filter cards
+  function filterCards(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.card').forEach(card => {
+      if (cat === 'Alle' || card.dataset.cat === cat) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+  }
+
+  // Tweaks
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "accentColor": "yellow",
+    "bigText": false,
+    "animation": true
+  }/*EDITMODE-END*/;
+  let tweaks = {...TWEAK_DEFAULTS};
+
+  function applyTweaks() {
+    const color = document.getElementById('tweak-color').value;
+    tweaks.accentColor = color;
+    const map = {
+      yellow: { main: 'oklch(88% 0.16 88)', dark: 'oklch(72% 0.16 88)' },
+      green:  { main: 'oklch(80% 0.14 155)', dark: 'oklch(55% 0.14 155)' },
+      pink:   { main: 'oklch(88% 0.14 0)', dark: 'oklch(62% 0.14 0)' },
+    };
+    const c = map[color];
+    document.documentElement.style.setProperty('--yellow', c.main);
+    document.documentElement.style.setProperty('--yellow-dark', c.dark);
+    window.parent.postMessage({type:'__edit_mode_set_keys', edits: tweaks}, '*');
+  }
+
+  function toggleBigText(btn) {
+    btn.classList.toggle('on');
+    tweaks.bigText = btn.classList.contains('on');
+    document.body.style.fontSize = tweaks.bigText ? '120%' : '';
+    window.parent.postMessage({type:'__edit_mode_set_keys', edits: tweaks}, '*');
+  }
+
+  function toggleAnim(btn) {
+    btn.classList.toggle('on');
+    tweaks.animation = btn.classList.contains('on');
+    const hdr = document.querySelector('.header-emoji');
+    hdr.style.animationPlayState = tweaks.animation ? 'running' : 'paused';
+    window.parent.postMessage({type:'__edit_mode_set_keys', edits: tweaks}, '*');
+  }
+
+  // Tweaks panel toggle
+  window.addEventListener('message', e => {
+    if (e.data?.type === '__activate_edit_mode') {
+      document.getElementById('tweaks-panel').style.display = 'block';
+    }
+    if (e.data?.type === '__deactivate_edit_mode') {
+      document.getElementById('tweaks-panel').style.display = 'none';
+    }
+  });
+  window.parent.postMessage({type: '__edit_mode_available'}, '*');
+
+  // Apply saved tweaks on load
+  document.getElementById('tweak-color').value = tweaks.accentColor;
+  if (tweaks.bigText) {
+    document.getElementById('tweak-bigtext').classList.add('on');
+    document.body.style.fontSize = '120%';
+  }
+  if (!tweaks.animation) {
+    document.getElementById('tweak-anim').classList.remove('on');
+    document.querySelector('.header-emoji').style.animationPlayState = 'paused';
+  }
+  if (tweaks.accentColor !== 'yellow') applyTweaks();
+</script>
+
+</body>
+</html>
