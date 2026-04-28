@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth *)",
+      "Bash(ssh-keygen -t ed25519 -C \"steffenpetry42@gmail.com\" -f ~/.ssh/id_ed25519 -N \"\")"
+    ]
+  }
+}
