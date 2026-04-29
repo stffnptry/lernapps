@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Binär ↔ Dezimal</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #fdf8f0;
+  --card: #ffffff;
+  --ink: #2d2417;
+  --muted: #8a7a5a;
+  --yellow: #f5c842;
+  --yellow-dk: #c49a0a;
+  --yellow-lt: #fef8e0;
+  --green: #4a9e6e;
+  --green-lt: #e8f5ee;
+  --blue: #3b6dbf;
+  --blue-lt: #e8eef8;
+  --red: #e85d2f;
+  --red-lt: #fdeee9;
+  --r: 16px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.10);
+}
+
+html, body {
+  width: 100%; min-height: 100%;
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  color: var(--ink);
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%, rgba(245,200,66,.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 85% 85%, rgba(59,109,191,.10) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+.page {
+  position: relative; z-index: 1;
+  max-width: 640px; margin: 0 auto;
+  padding: 24px 16px 64px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+/* ── HEADER ── */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.app-title {
+  background: var(--yellow); color: var(--ink);
+  font-size: clamp(1.3rem, 5vw, 1.9rem); font-weight: 900;
+  padding: 8px 22px; border-radius: 50px;
+  letter-spacing: .04em; box-shadow: 3px 3px 0 var(--yellow-dk);
+}
+.back-link {
+  font-size: .88rem; font-weight: 700; color: var(--muted);
+  text-decoration: none; padding: 8px 14px;
+  border: 2px solid #e0d8c8; border-radius: 50px;
+  transition: all .15s;
+}
+.back-link:hover { border-color: var(--ink); color: var(--ink); }
+
+/* ── CARD ── */
+.card {
+  background: var(--card); border: 2px solid #e0d8c8;
+  border-radius: 20px; padding: 20px 16px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 18px;
+}
+.card-title {
+  font-size: .72rem; font-weight: 800; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted);
+}
+
+/* ── BIT TABLE ── */
+.bit-table-wrap { width: 100%; overflow-x: auto; }
+.bit-table {
+  display: flex; gap: 5px; min-width: fit-content; margin: 0 auto;
+}
+.bit-col {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  flex: 1; min-width: 36px;
+}
+.bit-pow {
+  font-size: .7rem; font-weight: 800; color: var(--muted);
+  white-space: nowrap;
+}
+.bit-val {
+  font-size: .72rem; font-weight: 700; color: var(--ink);
+  background: #f5f0e8; border-radius: 6px;
+  padding: 2px 4px; width: 100%; text-align: center;
+}
+.bit-btn {
+  width: 100%; aspect-ratio: 1;
+  border: 3px solid #e0d8c8; border-radius: 12px;
+  background: var(--card);
+  font-family: 'Nunito', sans-serif;
+  font-size: clamp(1.1rem, 4vw, 1.5rem); font-weight: 900;
+  color: #bbb; cursor: pointer;
+  transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.bit-btn:hover { border-color: var(--yellow-dk); transform: translateY(-2px); }
+.bit-btn.on {
+  background: var(--yellow); border-color: var(--yellow-dk);
+  color: var(--ink); box-shadow: 2px 2px 0 var(--yellow-dk);
+}
+
+/* ── DISPLAY ROWS ── */
+.display-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.display-label {
+  font-size: .75rem; font-weight: 800; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--muted);
+  min-width: 64px;
+}
+.display-value {
+  font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 900;
+  color: var(--ink); letter-spacing: .02em;
+}
+.display-value sup {
+  font-size: .55em; font-weight: 900; color: var(--muted);
+}
+
+/* ── INPUTS ── */
+.input-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.input-label {
+  font-size: .75rem; font-weight: 800; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--muted);
+  min-width: 64px;
+}
+.num-input {
+  flex: 1; padding: 10px 14px;
+  border: 3px solid #e0d8c8; border-radius: var(--r);
+  font-family: 'Nunito', sans-serif; font-size: 1.15rem; font-weight: 800;
+  color: var(--ink); background: var(--bg);
+  outline: none; transition: border-color .15s;
+}
+.num-input:focus { border-color: var(--blue); }
+.num-input.error { border-color: var(--red); background: var(--red-lt); }
+.input-hint {
+  font-size: .72rem; font-weight: 700; color: var(--muted);
+  align-self: flex-end;
+}
+
+/* ── CALCULATION ── */
+.calc-box {
+  background: #f9f5ed; border-radius: var(--r);
+  padding: 14px 16px;
+  font-size: clamp(.78rem, 2.5vw, .9rem); font-weight: 700;
+  color: var(--ink); line-height: 1.7;
+}
+.calc-box .term { color: var(--ink); }
+.calc-box .term.zero { color: #c8bfa8; }
+.calc-box .term.one { color: var(--blue); }
+.calc-box .result {
+  font-size: 1.05em; font-weight: 900; color: var(--green);
+}
+
+/* ── RANGE SLIDER ── */
+.slider-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.slider-row label {
+  font-size: .75rem; font-weight: 800; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--muted); min-width: 64px;
+}
+input[type=range] {
+  flex: 1; accent-color: var(--blue);
+  height: 6px; cursor: pointer;
+}
+
+/* ── RESET BTN ── */
+.reset-btn {
+  align-self: flex-end;
+  padding: 8px 20px; background: transparent;
+  border: 2px solid #e0d8c8; border-radius: 50px;
+  font-family: 'Nunito', sans-serif; font-size: .85rem; font-weight: 700;
+  color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* ── DIVIDER ── */
+.divider {
+  border: none; border-top: 2px dashed #e8e0d0; margin: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="top-bar">
+    <h1 class="app-title">01 Binär ↔ Dezimal</h1>
+    <a class="back-link" href="../">← Zurück</a>
+  </div>
+
+  <!-- Main converter card -->
+  <div class="card">
+
+    <p class="card-title">Bit-Tabelle — klicke auf die Bits zum Umschalten</p>
+
+    <!-- Bit table -->
+    <div class="bit-table-wrap">
+      <div class="bit-table" id="bit-table"></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Binary display + input -->
+    <div class="input-row">
+      <span class="input-label">Binär</span>
+      <input class="num-input" id="input-bin" type="text" inputmode="numeric"
+             placeholder="00000000" maxlength="8"
+             oninput="onBinInput(this)">
+      <span class="input-hint"><sup>2</sup></span>
+    </div>
+
+    <!-- Decimal display + input -->
+    <div class="input-row">
+      <span class="input-label">Dezimal</span>
+      <input class="num-input" id="input-dec" type="text" inputmode="numeric"
+             placeholder="0" maxlength="3"
+             oninput="onDecInput(this)">
+      <span class="input-hint"><sup>10</sup></span>
+    </div>
+
+    <!-- Slider for quick decimal input -->
+    <div class="slider-row">
+      <label for="slider">Schieberegler</label>
+      <input type="range" id="slider" min="0" max="255" value="0"
+             oninput="onSlider(this)">
+    </div>
+
+    <hr class="divider">
+
+    <!-- Calculation breakdown -->
+    <div>
+      <p class="card-title" style="margin-bottom:8px">Berechnung</p>
+      <div class="calc-box" id="calc-box"></div>
+    </div>
+
+    <button class="reset-btn" onclick="reset()">Zurücksetzen</button>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+let bits = new Array(8).fill(0); // bits[0] = MSB (2⁷=128), bits[7] = LSB (2⁰=1)
+const VALUES = [128, 64, 32, 16, 8, 4, 2, 1];
+const POWS   = ['2⁷','2⁶','2⁵','2⁴','2³','2²','2¹','2⁰'];
+
+// ── INIT ──
+function buildBitTable() {
+  const table = document.getElementById('bit-table');
+  table.innerHTML = '';
+  bits.forEach((b, i) => {
+    const col = document.createElement('div');
+    col.className = 'bit-col';
+    col.innerHTML = `
+      <span class="bit-pow">${POWS[i]}</span>
+      <span class="bit-val">${VALUES[i]}</span>
+      <button class="bit-btn ${b ? 'on' : ''}" id="bit-${i}" onclick="toggleBit(${i})">${b}</button>
+    `;
+    table.appendChild(col);
+  });
+}
+
+function toggleBit(i) {
+  bits[i] = bits[i] ? 0 : 1;
+  updateAll();
+}
+
+// ── UPDATE ──
+function updateAll() {
+  // Update bit buttons
+  bits.forEach((b, i) => {
+    const btn = document.getElementById(`bit-${i}`);
+    if (!btn) return;
+    btn.textContent = b;
+    btn.className = `bit-btn ${b ? 'on' : ''}`;
+  });
+
+  const dec = bitsToDecimal();
+
+  // Sync inputs
+  const binStr = bits.join('');
+  const binInput = document.getElementById('input-bin');
+  const decInput = document.getElementById('input-dec');
+  binInput.value = binStr === '00000000' ? '' : binStr.replace(/^0+/, '') || '0';
+  binInput.classList.remove('error');
+  decInput.value = dec === 0 ? '' : dec;
+  decInput.classList.remove('error');
+
+  // Sync slider
+  document.getElementById('slider').value = dec;
+
+  // Update calculation
+  renderCalc(dec);
+}
+
+function bitsToDecimal() {
+  return bits.reduce((sum, b, i) => sum + b * VALUES[i], 0);
+}
+
+function decimalToBits(n) {
+  return VALUES.map(v => { const b = n >= v ? 1 : 0; if (b) n -= v; return b; });
+}
+
+function renderCalc(dec) {
+  const box = document.getElementById('calc-box');
+  const terms = bits.map((b, i) => {
+    const cls = b ? 'one' : 'zero';
+    return `<span class="term ${cls}">${b}×${VALUES[i]}</span>`;
+  });
+  box.innerHTML = terms.join(' + ') +
+    ` = <span class="result">${dec}</span>`;
+}
+
+// ── INPUT HANDLERS ──
+function onBinInput(el) {
+  const raw = el.value.trim();
+  if (!/^[01]{0,8}$/.test(raw)) {
+    el.classList.add('error'); return;
+  }
+  el.classList.remove('error');
+  if (raw === '') { bits = new Array(8).fill(0); updateAll(); return; }
+  const padded = raw.padStart(8, '0');
+  bits = padded.split('').map(Number);
+  // update everything except this input
+  const dec = bitsToDecimal();
+  bits.forEach((b, i) => {
+    const btn = document.getElementById(`bit-${i}`);
+    if (btn) { btn.textContent = b; btn.className = `bit-btn ${b ? 'on' : ''}`; }
+  });
+  document.getElementById('input-dec').value = dec === 0 ? '' : dec;
+  document.getElementById('slider').value = dec;
+  renderCalc(dec);
+}
+
+function onDecInput(el) {
+  const raw = el.value.trim();
+  if (raw === '') { bits = new Array(8).fill(0); updateAllExcept('dec'); return; }
+  const n = parseInt(raw, 10);
+  if (isNaN(n) || n < 0 || n > 255) {
+    el.classList.add('error'); return;
+  }
+  el.classList.remove('error');
+  bits = decimalToBits(n);
+  updateAllExcept('dec');
+}
+
+function onSlider(el) {
+  const n = parseInt(el.value, 10);
+  bits = decimalToBits(n);
+  updateAll();
+}
+
+function updateAllExcept(skip) {
+  bits.forEach((b, i) => {
+    const btn = document.getElementById(`bit-${i}`);
+    if (btn) { btn.textContent = b; btn.className = `bit-btn ${b ? 'on' : ''}`; }
+  });
+  const dec = bitsToDecimal();
+  const binStr = bits.join('');
+  if (skip !== 'bin') {
+    const el = document.getElementById('input-bin');
+    el.value = binStr === '00000000' ? '' : binStr.replace(/^0+/, '') || '0';
+    el.classList.remove('error');
+  }
+  if (skip !== 'dec') {
+    const el = document.getElementById('input-dec');
+    el.value = dec === 0 ? '' : dec;
+    el.classList.remove('error');
+  }
+  document.getElementById('slider').value = dec;
+  renderCalc(dec);
+}
+
+function reset() {
+  bits = new Array(8).fill(0);
+  updateAll();
+}
+
+// ── START ──
+buildBitTable();
+renderCalc(0);
+</script>
+</body>
+</html>

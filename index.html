@@ -141,6 +141,11 @@
       border-color: var(--blue-dark);
     }
 
+    .filter-btn[data-cat="Musik"].active {
+      background: var(--green);
+      border-color: var(--green-dark);
+    }
+
     /* Cards grid */
     .grid {
       display: grid;
@@ -246,6 +251,16 @@
         rgba(255,255,255,0.25) 16px
       );
     }
+    .card[data-cat="Musik"] .card-visual {
+      background-color: var(--green);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(255,255,255,0.25) 8px,
+        rgba(255,255,255,0.25) 16px
+      );
+    }
 
     .card-body {
       padding: 22px 24px 24px;
@@ -281,6 +296,7 @@
 
     [data-cat="Mathe"] .badge { background: var(--yellow); color: oklch(40% 0.12 88); }
     [data-cat="Deutsch"] .badge { background: var(--blue); color: oklch(28% 0.10 240); }
+    [data-cat="Musik"] .badge { background: var(--green); color: oklch(30% 0.10 160); }
 
     .card-desc {
       font-size: 0.98rem;
@@ -441,6 +457,7 @@
     <button class="filter-btn active" data-cat="Alle" onclick="filterCards('Alle', this)">🌟 Alle</button>
     <button class="filter-btn" data-cat="Mathe" onclick="filterCards('Mathe', this)">🔢 Mathe</button>
     <button class="filter-btn" data-cat="Deutsch" onclick="filterCards('Deutsch', this)">✏️ Deutsch</button>
+    <button class="filter-btn" data-cat="Musik" onclick="filterCards('Musik', this)">🎵 Musik</button>
   </div>
 
   <!-- App Cards -->
@@ -484,6 +501,37 @@
           <h2 class="card-title">Die Grammatik-Giraffe</h2>
         </div>
         <p class="card-desc">Übe Konjugationen, Kasus, Wortarten und Steigerungen!</p>
+        <div class="card-cta">Jetzt ansehen <i class="card-arrow">→</i></div>
+      </div>
+    </a>
+
+    <a class="card" data-cat="Mathe" href="./binaer/index.html">
+      <div class="card-visual">
+        <div class="placeholder" style="background:linear-gradient(135deg,#e8eef8 0%,#f5f0e8 100%);width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'Nunito',sans-serif;font-size:2rem;font-weight:900;color:#3b6dbf;letter-spacing:.05em;">01<span style="font-size:1.1rem;vertical-align:super;font-size:.9rem;">₂</span></span>
+        </div>
+      </div>
+      <div class="card-body">
+        <span class="badge">🔢 Mathe</span>
+        <div class="card-top">
+          <h2 class="card-title">Binär ↔ Dezimal</h2>
+        </div>
+        <p class="card-desc">Wandle Zahlen zwischen dem Binärsystem (1001101²) und dem Dezimalsystem um – interaktiv mit Bit-Tabelle und Schieberegler.</p>
+        <div class="card-cta">Jetzt umrechnen <i class="card-arrow">→</i></div>
+      </div>
+    </a>
+
+        <a class="card" data-cat="Musik" href="./notenlesen/index.html">
+      <div class="card-visual">
+        <img src="notenlesen.png" alt="NotenLesen">
+      </div>
+      <div class="card-body">
+        <span class="badge">🎵 Musik</span>
+        <div class="card-top">
+          <h2 class="card-title">Notenlesen</h2>
+        </div>
+        <p class="card-desc">Lerne wie Noten heißen und wie man sie auf dem Klavier und im Notensystem findet!
+        </p>
         <div class="card-cta">Jetzt ansehen <i class="card-arrow">→</i></div>
       </div>
     </a>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Notenlesen Lernen</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #fdf8f0;
+  --card: #ffffff;
+  --ink: #2d2417;
+  --muted: #8a7a5a;
+  --yellow: #f5c842;
+  --yellow-dk: #c49a0a;
+  --green: #4a9e6e;
+  --green-lt: #e8f5ee;
+  --red: #e85d2f;
+  --red-lt: #fdeee9;
+  --blue: #3b6dbf;
+  --blue-lt: #e8eef8;
+  --purple: #7c4dba;
+  --purple-lt: #f0eaf8;
+  --r: 16px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.10);
+}
+
+html, body { width: 100%; min-height: 100%; background: var(--bg); font-family: 'Nunito', sans-serif; color: var(--ink); }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%, rgba(245,200,66,.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 85% 85%, rgba(59,109,191,.12) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── SCREENS ── */
+.screen { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px 16px 48px; }
+.screen.hidden { display: none; }
+
+/* ── START SCREEN ── */
+#screen-start { gap: 18px; max-width: 580px; margin: 0 auto; padding-top: clamp(20px, 5vh, 56px); width: 100%; }
+
+.app-title {
+  background: var(--yellow); color: var(--ink);
+  font-size: clamp(1.6rem, 6vw, 2.4rem); font-weight: 900;
+  padding: 10px 28px; border-radius: 50px;
+  letter-spacing: .04em; box-shadow: 4px 4px 0 var(--yellow-dk);
+}
+
+.section-label {
+  font-size: .78rem; font-weight: 800; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted);
+  align-self: flex-start; width: 100%; padding-left: 2px;
+}
+
+/* clef buttons */
+.clef-row { display: flex; gap: 12px; width: 100%; }
+.clef-btn {
+  flex: 1; padding: 14px 8px; border: 3px solid #e0d8c8; border-radius: var(--r);
+  background: var(--card); font-family: 'Nunito', sans-serif;
+  font-size: .95rem; font-weight: 800; color: var(--ink);
+  cursor: pointer; transition: all .18s; display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.clef-symbol { font-size: 2.4rem; line-height: 1; font-family: serif; }
+.clef-btn:hover { border-color: var(--yellow-dk); }
+.clef-btn.active { border-color: var(--yellow-dk); background: var(--yellow); box-shadow: 3px 3px 0 var(--yellow-dk); }
+
+/* mode buttons */
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.mode-btn {
+  padding: 13px 8px; border: 3px solid #e0d8c8; border-radius: var(--r);
+  background: var(--card); font-family: 'Nunito', sans-serif;
+  font-size: .82rem; font-weight: 700; color: var(--ink);
+  cursor: pointer; transition: all .18s; text-align: center; line-height: 1.4;
+}
+.mode-btn:hover { border-color: var(--blue); background: var(--blue-lt); }
+.mode-btn.active { border-color: var(--blue); background: var(--blue); color: #fff; box-shadow: 3px 3px 0 rgba(59,109,191,.4); }
+
+.start-btn {
+  padding: 16px 48px; background: var(--green); color: #fff; border: none;
+  border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 1.25rem; font-weight: 900;
+  cursor: pointer; box-shadow: 4px 4px 0 #2d7a50; transition: all .15s; letter-spacing: .02em;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 #2d7a50; }
+.start-btn:active { transform: translateY(1px); box-shadow: 2px 2px 0 #2d7a50; }
+.start-btn:disabled { background: #c0b8a8; box-shadow: 3px 3px 0 #a8a090; cursor: not-allowed; transform: none; }
+
+/* ── EXERCISE SCREEN ── */
+#screen-exercise { gap: 14px; max-width: 600px; margin: 0 auto; padding-top: clamp(14px, 3vh, 32px); width: 100%; }
+
+.ex-header { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
+.back-btn {
+  padding: 8px 16px; background: transparent; border: 2px solid #e0d8c8; border-radius: 50px;
+  font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.back-btn:hover { border-color: var(--ink); color: var(--ink); }
+.score-pill {
+  background: var(--card); border: 2px solid #e0d8c8; border-radius: 50px;
+  padding: 6px 16px; font-size: .88rem; font-weight: 800; white-space: nowrap;
+}
+.score-pill .ok { color: var(--green); }
+
+.mode-label {
+  font-size: .75rem; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); text-align: center; width: 100%;
+}
+
+/* question card */
+.q-card {
+  width: 100%; background: var(--card); border: 2px solid #e0d8c8; border-radius: 20px;
+  padding: 18px 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.q-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.note-big { font-size: clamp(4.5rem, 18vw, 7rem); font-weight: 900; line-height: 1; color: var(--ink); }
+.note-octave { font-size: .82rem; font-weight: 700; color: var(--muted); }
+
+/* staff */
+.staff-wrap { width: 100%; max-width: 480px; }
+.staff-wrap svg { width: 100%; height: auto; display: block; }
+
+/* piano */
+.piano-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.piano-wrap svg { display: block; margin: 0 auto; }
+
+/* answer area */
+.a-area { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.a-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); align-self: flex-start; }
+
+/* choice buttons */
+.choice-grid { display: grid; gap: 10px; width: 100%; }
+.choice-grid.c4 { grid-template-columns: repeat(4, 1fr); }
+.choice-grid.c3 { grid-template-columns: repeat(3, 1fr); }
+.choice-btn {
+  padding: 14px 4px; background: var(--card); border: 3px solid #e0d8c8; border-radius: var(--r);
+  font-family: 'Nunito', sans-serif; font-size: clamp(1rem, 4vw, 1.6rem); font-weight: 900;
+  color: var(--ink); cursor: pointer; transition: all .15s; text-align: center;
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-lt); transform: translateY(-2px); }
+.choice-btn.correct { background: var(--green-lt) !important; border-color: var(--green) !important; color: var(--green) !important; }
+.choice-btn.wrong { background: var(--red-lt) !important; border-color: var(--red) !important; color: var(--red) !important; }
+.choice-btn:disabled { cursor: not-allowed; }
+
+/* feedback */
+.feedback {
+  width: 100%; padding: 12px 18px; border-radius: var(--r);
+  font-size: 1.05rem; font-weight: 800; text-align: center; transition: all .25s;
+}
+.feedback.ok { background: var(--green-lt); color: var(--green); border: 2px solid var(--green); }
+.feedback.err { background: var(--red-lt); color: var(--red); border: 2px solid var(--red); }
+.feedback.hidden { display: none; }
+
+/* next button */
+.next-btn {
+  padding: 13px 40px; background: var(--blue); color: #fff; border: none;
+  border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 900;
+  cursor: pointer; box-shadow: 3px 3px 0 rgba(59,109,191,.4); transition: all .15s;
+}
+.next-btn:hover { transform: translateY(-2px); }
+.next-btn.hidden { display: none; }
+
+/* instruction */
+.instruction { font-size: .9rem; font-weight: 700; color: var(--muted); text-align: center; }
+
+/* ── SUMMARY SCREEN ── */
+#screen-summary { justify-content: center; gap: 0; }
+.summary-card {
+  background: var(--card); border: 2px solid #e0d8c8; border-radius: 24px;
+  padding: 40px 32px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  max-width: 400px; width: 100%; text-align: center;
+}
+.summary-emoji { font-size: 4rem; line-height: 1; }
+.summary-title { font-size: 1.6rem; font-weight: 900; color: var(--ink); }
+.summary-score { font-size: 1.05rem; font-weight: 700; color: var(--muted); }
+.summary-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ START SCREEN ═══════════════ -->
+<div id="screen-start" class="screen">
+  <h1 class="app-title">🎵 Notenlesen</h1>
+
+  <p class="section-label">Schlüssel wählen</p>
+  <div class="clef-row">
+    <button class="clef-btn active" id="btn-treble" onclick="selectClef('treble',this)">
+      <span class="clef-symbol">𝄞</span>
+      Violinschlüssel
+    </button>
+    <button class="clef-btn" id="btn-bass" onclick="selectClef('bass',this)">
+      <span class="clef-symbol">𝄢</span>
+      Bassschlüssel
+    </button>
+  </div>
+
+  <p class="section-label">Übung wählen</p>
+  <div class="mode-grid">
+    <button class="mode-btn" data-mode="staff-to-letter" onclick="selectMode(this)">🎼 Notensystem<br>→ Buchstabe</button>
+    <button class="mode-btn" data-mode="letter-to-staff" onclick="selectMode(this)">🔤 Buchstabe<br>→ Notensystem</button>
+    <button class="mode-btn" data-mode="letter-to-piano" onclick="selectMode(this)">🔤 Buchstabe<br>→ Klavier</button>
+    <button class="mode-btn" data-mode="staff-to-piano" onclick="selectMode(this)">🎼 Notensystem<br>→ Klavier</button>
+    <button class="mode-btn" data-mode="piano-to-letter" onclick="selectMode(this)">🎹 Klavier<br>→ Buchstabe</button>
+    <button class="mode-btn" data-mode="piano-to-staff" onclick="selectMode(this)">🎹 Klavier<br>→ Notensystem</button>
+  </div>
+
+  <button class="start-btn" id="btn-start" onclick="startGame()" disabled>Übung starten</button>
+  <a href="../index.html" style="font-size:.85rem;font-weight:700;color:var(--muted);text-decoration:none;margin-top:4px;">← Zurück zur allen Apps</a>
+</div>
+
+<!-- ═══════════════ EXERCISE SCREEN ═══════════════ -->
+<div id="screen-exercise" class="screen hidden">
+  <div class="ex-header">
+    <button class="back-btn" onclick="goBack()">← Zurück</button>
+    <div class="score-pill"><span class="ok" id="sc-ok">0</span> / <span id="sc-total">0</span></div>
+  </div>
+  <p class="mode-label" id="mode-label"></p>
+  <div class="q-card" id="q-card"></div>
+  <div class="a-area" id="a-area"></div>
+  <div class="feedback hidden" id="feedback"></div>
+  <button class="next-btn hidden" id="btn-next" onclick="nextQuestion()">Weiter →</button>
+</div>
+
+<!-- ═══════════════ SUMMARY SCREEN ═══════════════ -->
+<div id="screen-summary" class="screen hidden">
+  <div class="summary-card">
+    <div class="summary-emoji" id="summary-emoji"></div>
+    <h2 class="summary-title" id="summary-title"></h2>
+    <p class="summary-score" id="summary-score"></p>
+    <div class="summary-actions">
+      <button class="start-btn" onclick="startGame()">Nochmal</button>
+      <button class="back-btn" style="padding:16px 24px;font-size:1rem" onclick="goBack()">← Zurück zur Auswahl</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// Staff SVG: viewBox="0 0 300 110"
+// Lines at y = 30, 40, 50, 60, 70  (top→bottom)
+// Note x = 170  |  note radius = 7
+// ══════════════════════════════════════════════
+
+const ROUND_SIZE = 10;
+
+const LINE_YS = [30, 40, 50, 60, 70];
+const NOTE_X  = 170;
+const NR      = 7;
+const WKW     = 38;
+const WKH     = 88;
+const BKW     = 24;
+const BKH     = 54;
+
+// acc: '#' = Kreuz (sharp), 'b' = Be (flat), null = natural
+// Treble: E4=line1(y70), G4=line2(y60), H4=line3(y50), D5=line4(y40), F5=line5(y30)
+const TREBLE = [
+  { n:'C',   o:4, y:80, ledger:[80], k:'C4'   },
+  { n:'Cis', o:4, y:80, ledger:[80], k:'Cis4', acc:'#' },
+  { n:'Des', o:4, y:75, ledger:[],   k:'Cis4', acc:'b' },
+  { n:'D',   o:4, y:75, ledger:[],   k:'D4'   },
+  { n:'Dis', o:4, y:75, ledger:[],   k:'Dis4', acc:'#' },
+  { n:'Es',  o:4, y:70, ledger:[],   k:'Dis4', acc:'b' },
+  { n:'E',   o:4, y:70, ledger:[],   k:'E4'   },
+  { n:'F',   o:4, y:65, ledger:[],   k:'F4'   },
+  { n:'Fis', o:4, y:65, ledger:[],   k:'Fis4', acc:'#' },
+  { n:'Ges', o:4, y:60, ledger:[],   k:'Fis4', acc:'b' },
+  { n:'G',   o:4, y:60, ledger:[],   k:'G4'   },
+  { n:'Gis', o:4, y:60, ledger:[],   k:'Gis4', acc:'#' },
+  { n:'As',  o:4, y:55, ledger:[],   k:'Gis4', acc:'b' },
+  { n:'A',   o:4, y:55, ledger:[],   k:'A4'   },
+  { n:'Ais', o:4, y:55, ledger:[],   k:'Ais4', acc:'#' },
+  { n:'B',   o:4, y:50, ledger:[],   k:'Ais4', acc:'b' },
+  { n:'H',   o:4, y:50, ledger:[],   k:'H4'   },
+  { n:'C',   o:5, y:45, ledger:[],   k:'C5'   },
+  { n:'Cis', o:5, y:45, ledger:[],   k:'Cis5', acc:'#' },
+  { n:'Des', o:5, y:40, ledger:[],   k:'Cis5', acc:'b' },
+  { n:'D',   o:5, y:40, ledger:[],   k:'D5'   },
+  { n:'Dis', o:5, y:40, ledger:[],   k:'Dis5', acc:'#' },
+  { n:'Es',  o:5, y:35, ledger:[],   k:'Dis5', acc:'b' },
+  { n:'E',   o:5, y:35, ledger:[],   k:'E5'   },
+  { n:'F',   o:5, y:30, ledger:[],   k:'F5'   },
+  { n:'Fis', o:5, y:30, ledger:[],   k:'Fis5', acc:'#' },
+  { n:'Ges', o:5, y:25, ledger:[],   k:'Fis5', acc:'b' },
+  { n:'G',   o:5, y:25, ledger:[],   k:'G5'   },
+];
+
+// Bass: G2=line1(y70), H2=line2(y60), D3=line3(y50), F3=line4(y40), A3=line5(y30)
+const BASS = [
+  { n:'G',   o:2, y:70, ledger:[], k:'G2'   },
+  { n:'Gis', o:2, y:70, ledger:[], k:'Gis2', acc:'#' },
+  { n:'As',  o:2, y:65, ledger:[], k:'Gis2', acc:'b' },
+  { n:'A',   o:2, y:65, ledger:[], k:'A2'   },
+  { n:'Ais', o:2, y:65, ledger:[], k:'Ais2', acc:'#' },
+  { n:'B',   o:2, y:60, ledger:[], k:'Ais2', acc:'b' },
+  { n:'H',   o:2, y:60, ledger:[], k:'H2'   },
+  { n:'C',   o:3, y:55, ledger:[], k:'C3'   },
+  { n:'Cis', o:3, y:55, ledger:[], k:'Cis3', acc:'#' },
+  { n:'Des', o:3, y:50, ledger:[], k:'Cis3', acc:'b' },
+  { n:'D',   o:3, y:50, ledger:[], k:'D3'   },
+  { n:'Dis', o:3, y:50, ledger:[], k:'Dis3', acc:'#' },
+  { n:'Es',  o:3, y:45, ledger:[], k:'Dis3', acc:'b' },
+  { n:'E',   o:3, y:45, ledger:[], k:'E3'   },
+  { n:'F',   o:3, y:40, ledger:[], k:'F3'   },
+  { n:'Fis', o:3, y:40, ledger:[], k:'Fis3', acc:'#' },
+  { n:'Ges', o:3, y:35, ledger:[], k:'Fis3', acc:'b' },
+  { n:'G',   o:3, y:35, ledger:[], k:'G3'   },
+  { n:'Gis', o:3, y:35, ledger:[], k:'Gis3', acc:'#' },
+  { n:'As',  o:3, y:30, ledger:[], k:'Gis3', acc:'b' },
+  { n:'A',   o:3, y:30, ledger:[], k:'A3'   },
+  { n:'Ais', o:3, y:30, ledger:[], k:'Ais3', acc:'#' },
+  { n:'B',   o:3, y:25, ledger:[], k:'Ais3', acc:'b' },
+  { n:'H',   o:3, y:25, ledger:[], k:'H3'   },
+];
+
+const PIANO_T = [
+  {k:'C4',n:'C'},{k:'D4',n:'D'},{k:'E4',n:'E'},{k:'F4',n:'F'},
+  {k:'G4',n:'G'},{k:'A4',n:'A'},{k:'H4',n:'H'},
+  {k:'C5',n:'C'},{k:'D5',n:'D'},{k:'E5',n:'E'},{k:'F5',n:'F'},{k:'G5',n:'G'},
+];
+const PIANO_B = [
+  {k:'G2',n:'G'},{k:'A2',n:'A'},{k:'H2',n:'H'},
+  {k:'C3',n:'C'},{k:'D3',n:'D'},{k:'E3',n:'E'},{k:'F3',n:'F'},
+  {k:'G3',n:'G'},{k:'A3',n:'A'},{k:'H3',n:'H'},
+];
+
+const BLACK_T = [{i:0,k:'Cis4'},{i:1,k:'Dis4'},{i:3,k:'Fis4'},{i:4,k:'Gis4'},{i:5,k:'Ais4'},
+                 {i:7,k:'Cis5'},{i:8,k:'Dis5'},{i:10,k:'Fis5'}];
+const BLACK_B = [{i:0,k:'Gis2'},{i:1,k:'Ais2'},{i:3,k:'Cis3'},{i:4,k:'Dis3'},
+                 {i:6,k:'Fis3'},{i:7,k:'Gis3'},{i:8,k:'Ais3'}];
+
+// ── STATE ──
+let S = { clef:'treble', mode:null, note:null, answered:false, ok:0, total:0 };
+
+// ── HELPERS ──
+function notes()    { return S.clef === 'treble' ? TREBLE : BASS; }
+function whites()   { return S.clef === 'treble' ? PIANO_T : PIANO_B; }
+function blacks()   { return S.clef === 'treble' ? BLACK_T : BLACK_B; }
+function $id(id)    { return document.getElementById(id); }
+function shuffle(a) { for (let i=a.length-1;i>0;i--){const j=Math.random()*i|0;[a[i],a[j]]=[a[j],a[i]];}return a; }
+
+// Traditional German octave notation: G → "G" (große), c → "c" (kleine), c¹ (eingestrichene), c² (zweigestrichene)
+function noteLabel(note) {
+  const n = note.n;
+  if (note.o === 2) return n;
+  if (note.o === 3) return n.toLowerCase();
+  if (note.o === 4) return n.toLowerCase() + '¹';
+  if (note.o === 5) return n.toLowerCase() + '²';
+  return n;
+}
+
+// ── SCREEN SWITCHING ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  $id(id).classList.remove('hidden');
+}
+
+// ── START SETUP ──
+function selectClef(clef, btn) {
+  S.clef = clef;
+  document.querySelectorAll('.clef-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function selectMode(btn) {
+  S.mode = btn.dataset.mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  $id('btn-start').disabled = false;
+}
+function goBack() { showScreen('screen-start'); }
+
+function startGame() {
+  S.ok = 0; S.total = 0; updateScore();
+  showScreen('screen-exercise');
+  const labels = {
+    'staff-to-letter': 'Notensystem → Buchstabe',
+    'letter-to-staff': 'Buchstabe → Notensystem',
+    'staff-to-piano':  'Notensystem → Klavier',
+    'letter-to-piano': 'Buchstabe → Klavier',
+    'piano-to-letter': 'Klavier → Buchstabe',
+    'piano-to-staff':  'Klavier → Notensystem',
+  };
+  const clefLabel = S.clef === 'treble' ? '𝄞 Violin' : '𝄢 Bass';
+  $id('mode-label').textContent = `${clefLabel}schlüssel · ${labels[S.mode]}`;
+  nextQuestion();
+}
+
+function updateScore() {
+  $id('sc-ok').textContent = S.ok;
+  $id('sc-total').textContent = ROUND_SIZE;
+}
+
+// ── SUMMARY ──
+function showSummary() {
+  const pct = S.total > 0 ? Math.round(S.ok / S.total * 100) : 0;
+  const emoji = pct === 100 ? '🏆' : pct >= 80 ? '⭐' : pct >= 60 ? '👍' : '💪';
+  const msg   = pct === 100 ? 'Perfekt! Alles richtig!' : pct >= 80 ? 'Super gemacht!' : pct >= 60 ? 'Gut! Weiter üben!' : 'Nicht aufgeben!';
+  $id('summary-emoji').textContent = emoji;
+  $id('summary-title').textContent = msg;
+  $id('summary-score').textContent = `${S.ok} von ${S.total} Fragen richtig (${pct} %)`;
+  showScreen('screen-summary');
+}
+
+// ── CONFETTI ──
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+  document.body.appendChild(canvas);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#f5c842','#4a9e6e','#3b6dbf','#e85d2f','#7c4dba','#ff6b9d','#00c9a7'];
+  const pieces = Array.from({length: 90}, () => ({
+    x:  Math.random() * canvas.width,
+    y:  Math.random() * -100 - 10,
+    r:  Math.random() * 7 + 3,
+    c:  colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 5,
+    vy: Math.random() * 4 + 2,
+    angle: Math.random() * Math.PI * 2,
+    va: (Math.random() - 0.5) * 0.25,
+  }));
+  const start = Date.now();
+  let frame;
+  (function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const elapsed = Date.now() - start;
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.angle += p.va;
+      const alpha = elapsed < 1500 ? 1 : Math.max(0, 1 - (elapsed - 1500) / 500);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.r, -p.r * 0.5, p.r * 2, p.r);
+      ctx.restore();
+    });
+    if (elapsed < 2000) frame = requestAnimationFrame(draw);
+    else { cancelAnimationFrame(frame); canvas.remove(); }
+  })();
+}
+
+// ══════════════════════════════════════════════
+// QUESTION GENERATION
+// ══════════════════════════════════════════════
+function nextQuestion() {
+  if (S.total >= ROUND_SIZE) {
+    showSummary();
+    return;
+  }
+  S.answered = false;
+  const pool = ['letter-to-staff', 'piano-to-staff'].includes(S.mode)
+    ? notes().filter(n => !n.acc)
+    : notes();
+  S.note = pool[Math.floor(Math.random() * pool.length)];
+  $id('feedback').className = 'feedback hidden';
+  $id('btn-next').className = 'next-btn hidden';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const { mode, note } = S;
+  const qCard = $id('q-card');
+  const aArea = $id('a-area');
+  qCard.innerHTML = '';
+  aArea.innerHTML = '';
+
+  switch (mode) {
+    case 'staff-to-letter': {
+      qCard.innerHTML = `
+        <p class="q-label">Wie heißt diese Note?</p>
+        <div class="staff-wrap">${staffSVG(note)}</div>`;
+      aArea.innerHTML = `
+        <p class="a-label">Wähle den richtigen Namen:</p>
+        <div class="choice-grid c4">${letterChoices(note)}</div>`;
+      break;
+    }
+    case 'letter-to-staff': {
+      qCard.innerHTML = `
+        <p class="q-label">Wo liegt diese Note?</p>
+        <div class="note-big">${noteLabel(note)}</div>`;
+      aArea.innerHTML = `
+        <p class="a-label">Klicke auf die richtige Position im Notensystem:</p>
+        <div class="staff-wrap" id="staff-interactive">${interactiveStaff()}</div>`;
+      addStaffClickListeners();
+      break;
+    }
+    case 'staff-to-piano': {
+      qCard.innerHTML = `
+        <p class="q-label">Welche Taste auf dem Klavier?</p>
+        <div class="staff-wrap">${staffSVG(note)}</div>`;
+      aArea.innerHTML = `
+        <p class="a-label">Klicke auf die richtige Taste:</p>
+        <div class="piano-wrap" id="piano-interactive">${pianoSVG(null, true)}</div>`;
+      addPianoClickListeners();
+      break;
+    }
+    case 'letter-to-piano': {
+      qCard.innerHTML = `
+        <p class="q-label">Welche Taste auf dem Klavier?</p>
+        <div class="note-big">${noteLabel(note)}</div>`;
+      aArea.innerHTML = `
+        <p class="a-label">Klicke auf die richtige Taste:</p>
+        <div class="piano-wrap" id="piano-interactive">${pianoSVG(null, true)}</div>`;
+      addPianoClickListeners();
+      break;
+    }
+    case 'piano-to-letter': {
+      qCard.innerHTML = `
+        <p class="q-label">Wie heißt diese Taste?</p>
+        <div class="piano-wrap">${pianoSVG(note.k, false)}</div>`;
+      aArea.innerHTML = `
+        <p class="a-label">Wähle den richtigen Namen:</p>
+        <div class="choice-grid c4">${letterChoices(note)}</div>`;
+      break;
+    }
+    case 'piano-to-staff': {
+      qCard.innerHTML = `
+        <p class="q-label">Wo liegt diese Note im Notensystem?</p>
+        <div class="piano-wrap">${pianoSVG(note.k, false)}</div>`;
+      aArea.innerHTML = `
+        <p class="a-label">Klicke auf die richtige Position:</p>
+        <div class="staff-wrap" id="staff-interactive">${interactiveStaff()}</div>`;
+      addStaffClickListeners();
+      break;
+    }
+  }
+}
+
+// ══════════════════════════════════════════════
+// SVG BUILDERS
+// ══════════════════════════════════════════════
+
+function staffSVG(note) {
+  let s = `<svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect width="300" height="110" fill="#fffdf7" rx="8"/>`;
+
+  for (const ly of LINE_YS)
+    s += `<line x1="52" y1="${ly}" x2="288" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+
+  if (S.clef === 'treble')
+    s += `<text x="4" y="80" font-size="76" font-family="serif" fill="#333">𝄞</text>`;
+  else
+    s += `<text x="8" y="56" font-size="50" font-family="serif" fill="#333">𝄢</text>`;
+
+  if (note != null) {
+    const noteY = note.y;
+    // Ledger lines
+    for (const ly of note.ledger)
+      s += `<line x1="${NOTE_X-16}" y1="${ly}" x2="${NOTE_X+16}" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+
+    // Accidental sign
+    if (note.acc) {
+      const sym = note.acc === '#' ? '♯' : '♭';
+      s += `<text x="${NOTE_X-16}" y="${noteY+5}" font-size="13" font-family="serif" fill="#1a1a1a" text-anchor="middle">${sym}</text>`;
+    }
+
+    // Stem
+    const stemUp = noteY > 50;
+    if (stemUp)
+      s += `<line x1="${NOTE_X+NR}" y1="${noteY}" x2="${NOTE_X+NR}" y2="${noteY-36}" stroke="#222" stroke-width="1.8"/>`;
+    else
+      s += `<line x1="${NOTE_X-NR}" y1="${noteY}" x2="${NOTE_X-NR}" y2="${noteY+36}" stroke="#222" stroke-width="1.8"/>`;
+
+    s += `<ellipse cx="${NOTE_X}" cy="${noteY}" rx="${NR}" ry="${NR*0.72}" transform="rotate(-12 ${NOTE_X} ${noteY})" fill="#1a1a1a"/>`;
+  }
+
+  s += `</svg>`;
+  return s;
+}
+
+function interactiveStaff() {
+  // Collect unique y positions sorted from lowest pitch (high y) to highest (low y)
+  const uniqueYs = [...new Map(notes().map(n => [n.y, n.y])).keys()].sort((a, b) => b - a);
+
+  // Spread x positions evenly across the staff (after the clef)
+  const xStart = 58;
+  const xEnd   = 352;
+  const step   = uniqueYs.length > 1 ? (xEnd - xStart) / (uniqueYs.length - 1) : 0;
+  const yToX   = {};
+  uniqueYs.forEach((y, i) => { yToX[y] = Math.round(xStart + i * step); });
+
+  let s = `<svg viewBox="0 0 370 110" xmlns="http://www.w3.org/2000/svg" id="staff-svg">`;
+  s += `<rect width="370" height="110" fill="#fffdf7" rx="8"/>`;
+
+  for (const ly of LINE_YS)
+    s += `<line x1="52" y1="${ly}" x2="362" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+
+  if (S.clef === 'treble')
+    s += `<text x="4" y="80" font-size="76" font-family="serif" fill="#333">𝄞</text>`;
+  else
+    s += `<text x="8" y="56" font-size="50" font-family="serif" fill="#333">𝄢</text>`;
+
+  // Dashed ledger-line hint for C4 (treble)
+  if (S.clef === 'treble' && yToX[80] != null) {
+    const lx = yToX[80];
+    s += `<line x1="${lx-12}" y1="80" x2="${lx+12}" y2="80" stroke="#ccc" stroke-width="1.2" stroke-dasharray="3,2"/>`;
+  }
+
+  // Click targets spread horizontally
+  for (const y of uniqueYs) {
+    const cx = yToX[y];
+    s += `<g class="staff-hit" data-y="${y}" style="cursor:pointer">`;
+    s += `<circle cx="${cx}" cy="${y}" r="13" fill="rgba(0,0,0,0)"/>`;
+    s += `<circle cx="${cx}" cy="${y}" r="${NR}" fill="rgba(59,109,191,.13)" stroke="rgba(59,109,191,.4)" stroke-width="1.5" class="ghost"/>`;
+    s += `</g>`;
+  }
+
+  s += `</svg>`;
+  return s;
+}
+
+function addStaffClickListeners() {
+  requestAnimationFrame(() => {
+    const svg = document.getElementById('staff-svg');
+    if (!svg) return;
+    svg.addEventListener('click', e => {
+      const g = e.target.closest('.staff-hit');
+      if (!g || S.answered) return;
+      handleStaffClick(parseInt(g.dataset.y));
+    });
+  });
+}
+
+function pianoSVG(highlightKey, interactive, wrongKey, correctKey) {
+  const ws = whites();
+  const bs = blacks();
+  const totalW = ws.length * WKW;
+  const svgH = WKH + 16;
+
+  let s = `<svg viewBox="0 0 ${totalW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="max-width:${Math.min(totalW,560)}px;width:100%">`;
+  s += `<rect width="${totalW}" height="${svgH}" fill="#f5f0e8" rx="6"/>`;
+
+  ws.forEach((key, i) => {
+    let fill = '#fff';
+    if (key.k === highlightKey) fill = '#f5c842';
+    if (key.k === wrongKey)     fill = '#fdeee9';
+    if (key.k === correctKey && wrongKey) fill = '#e8f5ee';
+    const stroke = key.k === wrongKey ? '#e85d2f' : key.k === correctKey && wrongKey ? '#4a9e6e' : '#bbb';
+    const sw = key.k === highlightKey || key.k === wrongKey || (key.k === correctKey && wrongKey) ? 2 : 1;
+    const cls = interactive ? `class="piano-key" data-key="${key.k}" style="cursor:pointer"` : '';
+    s += `<rect ${cls} x="${i*WKW+1}" y="8" width="${WKW-2}" height="${WKH}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" rx="3"/>`;
+    s += `<text x="${i*WKW+WKW/2}" y="${8+WKH-7}" text-anchor="middle" font-size="10" font-family="Nunito,sans-serif" font-weight="700" fill="#888" pointer-events="none">${key.n}</text>`;
+  });
+
+  bs.forEach(({i, k}) => {
+    let fill = '#1a1a1a';
+    if (k === highlightKey) fill = '#c49a0a';
+    if (k === wrongKey)     fill = '#e85d2f';
+    if (k === correctKey && wrongKey) fill = '#4a9e6e';
+    const x = (i+1)*WKW - BKW/2;
+    const cls = interactive ? `class="piano-key" data-key="${k}" style="cursor:pointer"` : '';
+    s += `<rect ${cls} x="${x}" y="8" width="${BKW}" height="${BKH}" fill="${fill}" stroke="#000" stroke-width="1" rx="2"/>`;
+  });
+
+  s += `</svg>`;
+  return s;
+}
+
+function addPianoClickListeners() {
+  requestAnimationFrame(() => {
+    const wrap = document.getElementById('piano-interactive');
+    if (!wrap) return;
+    wrap.addEventListener('click', e => {
+      const el = e.target.closest('.piano-key');
+      if (!el || S.answered) return;
+      handlePianoClick(el.dataset.key);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════
+// CHOICE BUTTONS
+// ══════════════════════════════════════════════
+function letterChoices(correctNote) {
+  const correctLbl = noteLabel(correctNote);
+  const pool = [...new Set(notes().map(n => noteLabel(n)))];
+  const wrong = shuffle(pool.filter(l => l !== correctLbl)).slice(0, 3);
+  const choices = shuffle([correctLbl, ...wrong]);
+  return choices.map(c =>
+    `<button class="choice-btn" data-letter="${c}" onclick="handleLetterChoice('${c}',this)">${c}</button>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════════
+// ANSWER HANDLERS
+// ══════════════════════════════════════════════
+function handleLetterChoice(letter, btn) {
+  if (S.answered) return;
+  S.answered = true;
+  S.total++;
+  const correctLbl = noteLabel(S.note);
+  const correct = letter === correctLbl;
+  if (correct) S.ok++;
+  updateScore();
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.letter === correctLbl) b.classList.add('correct');
+    else if (b === btn && !correct)      b.classList.add('wrong');
+  });
+
+  showFeedback(correct);
+}
+
+function handleStaffClick(y) {
+  if (S.answered) return;
+  S.answered = true;
+  S.total++;
+  const correct = y === S.note.y;
+  if (correct) S.ok++;
+  updateScore();
+
+  const svg = document.getElementById('staff-svg');
+  if (svg) {
+    svg.querySelectorAll('.staff-hit').forEach(g => {
+      const gy = parseInt(g.dataset.y);
+      const ghost = g.querySelector('.ghost');
+      if (gy === y && !correct) {
+        ghost.setAttribute('fill', 'rgba(232,93,47,.5)');
+        ghost.setAttribute('stroke', '#e85d2f');
+      }
+      if (gy === S.note.y) {
+        ghost.setAttribute('fill', 'rgba(74,158,110,.5)');
+        ghost.setAttribute('stroke', '#4a9e6e');
+      }
+      g.style.cursor = 'default';
+    });
+  }
+
+  showFeedback(correct, S.note);
+}
+
+function handlePianoClick(key) {
+  if (S.answered) return;
+  S.answered = true;
+  S.total++;
+  const correct = key === S.note.k;
+  if (correct) S.ok++;
+  updateScore();
+
+  const wrap = document.getElementById('piano-interactive');
+  if (wrap) {
+    const wrongKey   = correct ? null : key;
+    const correctKey = S.note.k;
+    wrap.innerHTML = pianoSVG(null, false, wrongKey, correctKey);
+  }
+
+  showFeedback(correct, S.note);
+}
+
+function showFeedback(correct, note) {
+  const fb = $id('feedback');
+  if (correct) {
+    fb.textContent = '✓ Richtig!';
+    fb.className = 'feedback ok';
+    launchConfetti();
+  } else {
+    const hint = note ? ` Die Note ist ${noteLabel(note)}.` : '';
+    fb.textContent = `✗ Leider falsch.${hint}`;
+    fb.className = 'feedback err';
+  }
+  const isLast = S.total >= ROUND_SIZE;
+  $id('btn-next').textContent = isLast ? 'Zum Ergebnis →' : 'Weiter →';
+  $id('btn-next').className = 'next-btn';
+}
+</script>
+</body>
+</html>
