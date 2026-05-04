@@ -340,15 +340,27 @@
   .answer-card.wrong   .card-feedback { opacity: 1; color: var(--accent); }
   .answer-card.correct .card-feedback { opacity: 1; color: var(--accent2); }
 
-  .answer-display {
-    display: flex; align-items: center; justify-content: center;
-    width: var(--card-w); height: 54px;
-    background: var(--paper); border: 3px solid var(--shadow2);
-    border-radius: 14px; box-shadow: 3px 3px 0 var(--shadow1);
-    font-size: 2rem; font-weight: 900; color: var(--ink);
-    flex-shrink: 0; transition: border-color .2s;
+  .inline-ans {
+    display: inline-block;
+    min-width: 1.6ch;
+    border-bottom: 5px solid var(--accent3);
+    color: var(--accent3);
+    font-weight: 900;
+    transition: color .2s, border-bottom-color .2s;
+    vertical-align: baseline;
   }
-  .answer-display.empty { color: var(--muted); font-size: 1rem; font-weight: 700; letter-spacing: .03em; }
+  .inline-ans:empty::after {
+    content: '_';
+    animation: blink 1s step-end infinite;
+    color: var(--accent3);
+    opacity: 0.5;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 0.5; }
+    50%      { opacity: 0; }
+  }
+  .answer-card.correct .inline-ans { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .answer-card.wrong   .inline-ans { color: var(--accent);  border-bottom-color: var(--accent); }
 
   .numpad {
     display: grid; grid-template-columns: repeat(3, 1fr);
@@ -363,6 +375,12 @@
     user-select: none; display: flex; align-items: center; justify-content: center;
   }
   .num-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--shadow1); }
+  @keyframes btnPop {
+    0%   { transform: translate(2px,2px) scale(.90); box-shadow: 1px 1px 0 var(--shadow1); }
+    55%  { transform: translate(-1px,-1px) scale(1.08); box-shadow: 4px 4px 0 var(--shadow1); }
+    100% { transform: translate(0,0) scale(1); box-shadow: 3px 3px 0 var(--shadow1); }
+  }
+  .num-btn.pop { animation: btnPop .28s cubic-bezier(.3,1.5,.5,1) forwards; }
   .del-btn  { background: #fff0eb; border-color: var(--shadow2); box-shadow: 3px 3px 0 var(--shadow2); font-size: clamp(1rem,4vw,1.4rem); color: var(--accent); }
   .check-btn { background: var(--accent2); border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink); color: #fff; font-size: clamp(1.4rem,5vw,2rem); }
   .check-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
@@ -444,21 +462,19 @@
     <div class="card-shadow"></div>
   </div>
 
-  <div class="answer-display empty" id="answer-display">Deine Antwort</div>
-
   <div class="numpad" id="numpad">
-    <button class="num-btn" onclick="pressNum('1')">1</button>
-    <button class="num-btn" onclick="pressNum('2')">2</button>
-    <button class="num-btn" onclick="pressNum('3')">3</button>
-    <button class="num-btn" onclick="pressNum('4')">4</button>
-    <button class="num-btn" onclick="pressNum('5')">5</button>
-    <button class="num-btn" onclick="pressNum('6')">6</button>
-    <button class="num-btn" onclick="pressNum('7')">7</button>
-    <button class="num-btn" onclick="pressNum('8')">8</button>
-    <button class="num-btn" onclick="pressNum('9')">9</button>
-    <button class="num-btn del-btn" onclick="pressNum('del')">⌫</button>
-    <button class="num-btn" onclick="pressNum('0')">0</button>
-    <button class="num-btn check-btn" onclick="pressNum('check')">✓</button>
+    <button class="num-btn" onclick="pressNum('1',this)">1</button>
+    <button class="num-btn" onclick="pressNum('2',this)">2</button>
+    <button class="num-btn" onclick="pressNum('3',this)">3</button>
+    <button class="num-btn" onclick="pressNum('4',this)">4</button>
+    <button class="num-btn" onclick="pressNum('5',this)">5</button>
+    <button class="num-btn" onclick="pressNum('6',this)">6</button>
+    <button class="num-btn" onclick="pressNum('7',this)">7</button>
+    <button class="num-btn" onclick="pressNum('8',this)">8</button>
+    <button class="num-btn" onclick="pressNum('9',this)">9</button>
+    <button class="num-btn del-btn" onclick="pressNum('del',this)">⌫</button>
+    <button class="num-btn" onclick="pressNum('0',this)">0</button>
+    <button class="num-btn check-btn" onclick="pressNum('check',this)">✓</button>
   </div>
 </div>
 
@@ -585,7 +601,7 @@
   function renderCard(enter = true) {
     clearTimeout(advanceTimer);
     currentInput = ''; answered = false;
-    setNumpadDisabled(false); updateDisplay();
+    setNumpadDisabled(false);
     const wrapper = document.getElementById('stack-wrapper');
     const old = wrapper.querySelector('.answer-card');
     if (old) old.remove();
@@ -597,7 +613,7 @@
     card.className = 'answer-card' + (enter ? ' card-enter' : '');
     card.innerHTML = `
       <div class="card-label">Aufgabe</div>
-      <div class="card-question">${c.a} · ${c.b} = ?</div>
+      <div class="card-question">${c.a} · ${c.b} = <span class="inline-ans" id="inline-answer"></span></div>
       <div class="card-feedback" id="card-feedback"></div>`;
     wrapper.appendChild(card);
   }
@@ -605,17 +621,23 @@
   /* ════════════════════════════════
      NUMPAD
   ════════════════════════════════ */
-  function pressNum(val) {
+  function pressNum(val, btn) {
     if (answered) return;
+    if (btn) {
+      btn.classList.remove('pop');
+      void btn.offsetWidth;
+      btn.classList.add('pop');
+      btn.addEventListener('animationend', () => btn.classList.remove('pop'), { once: true });
+    }
     if (val === 'del')        { currentInput = currentInput.slice(0, -1); }
     else if (val === 'check') { if (currentInput === '') return; checkAnswer(); return; }
     else                      { if (currentInput.length >= 3) return; currentInput += val; }
     updateDisplay();
   }
   function updateDisplay() {
-    const el = document.getElementById('answer-display');
-    if (currentInput === '') { el.textContent = 'Deine Antwort'; el.classList.add('empty'); }
-    else                     { el.textContent = currentInput; el.classList.remove('empty'); }
+    const el = document.getElementById('inline-answer');
+    if (!el) return;
+    el.textContent = currentInput;
   }
   function setNumpadDisabled(dis) {
     document.querySelectorAll('#numpad .num-btn').forEach(b => b.classList.toggle('disabled', dis));
