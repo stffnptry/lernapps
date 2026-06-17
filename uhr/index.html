@@ -178,9 +178,8 @@
     margin: 4px 0;
   }
   .time-display.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: scale(0.92);
+    color: #c5bfb0;
+    letter-spacing: 0.12em;
   }
 
   /* Legend */
@@ -202,6 +201,26 @@
   }
   .legend-swatch.hour   { background: var(--hour-color); }
   .legend-swatch.minute { background: var(--minute-color); }
+
+  .random-btn {
+    flex-shrink: 0;
+    background: var(--card-bg);
+    border: 2.5px solid #e5e0d5;
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .random-btn:hover {
+    border-color: var(--yellow-dark);
+    background: var(--yellow);
+    transform: scale(1.05);
+  }
+  .random-btn:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
@@ -234,6 +253,8 @@
       <div class="toggle-switch"></div>
     </div>
   </div>
+
+  <button class="random-btn" onclick="randomTime()">🎲 Zufällige Uhrzeit</button>
 
   <div class="clock-area">
     <div class="clock-wrap">
@@ -492,14 +513,48 @@
     const m   = Math.floor(minutes);
     let displayH;
     if (show24h) {
-      // Add 12 to get the afternoon reading (e.g. 5 → 17)
-      // At 12 o'clock position h12=0 → show 0 in 24h means midnight; keep 12 for noon ambiguity
-      displayH = h12 === 0 ? 12 : h12 + 12;
+      displayH = h12 === 0 ? 0 : h12 + 12;
     } else {
       displayH = h12 === 0 ? 12 : h12;
     }
+    if (!showDigital) return;
     document.getElementById('time-display').textContent =
       String(displayH).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  }
+
+  function randomTime() {
+    const m = Math.floor(Math.random() * 60);
+    const h = Math.floor(Math.random() * 12);
+    const targetMinute = m * 6;
+    const targetHour   = h * 30 + m * 0.5;
+
+    const startMinute = minuteAngle;
+    const startHour   = hourAngle;
+
+    // Always rotate forward (clockwise)
+    let deltaM = ((targetMinute - startMinute) % 360 + 360) % 360;
+    let deltaH = ((targetHour   - startHour)   % 360 + 360) % 360;
+    // Prefer the shorter arc if it's less than a half-turn
+    if (deltaM > 180) deltaM -= 360;
+    if (deltaH > 180) deltaH -= 360;
+
+    const DURATION = 700;
+    const start = performance.now();
+
+    function easeInOut(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+
+    function step(now) {
+      const t = Math.min((now - start) / DURATION, 1);
+      const e = easeInOut(t);
+      minuteAngle = (startMinute + deltaM * e + 360) % 360;
+      hourAngle   = (startHour   + deltaH * e + 360) % 360;
+      renderHands();
+      if (t < 1) requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
   }
 
   function toggleHourNumbers(el) {
@@ -517,8 +572,10 @@
   function toggleDigital(el) {
     el.classList.toggle('on');
     showDigital = el.classList.contains('on');
-    document.getElementById('time-display').classList.toggle('hidden', !showDigital);
-    requestAnimationFrame(resizeClock);
+    const display = document.getElementById('time-display');
+    display.classList.toggle('hidden', !showDigital);
+    if (!showDigital) display.textContent = '--:--';
+    else updateDisplay();
   }
 
   function toggle24h(el) {
