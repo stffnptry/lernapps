@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Uhr lernen</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fffdf7;
+    --text: #2d2a20;
+    --text-light: #6b6457;
+    --card-bg: #ffffff;
+    --yellow: oklch(88% 0.16 88);
+    --yellow-dark: oklch(72% 0.16 88);
+    --hour-color: #e03030;
+    --minute-color: #2b7de8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    font-family: 'Nunito', sans-serif;
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, oklch(92% 0.10 88 / 0.5) 0%, transparent 40%),
+      radial-gradient(circle at 85% 75%, oklch(88% 0.10 240 / 0.4) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 12px 10px;
+    gap: 0;
+  }
+
+  /* Top bar */
+  .topbar {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    padding-bottom: 8px;
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--card-bg);
+    border: 2.5px solid #e5e0d5;
+    border-radius: 100px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-light);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { border-color: var(--yellow-dark); color: var(--text); transform: scale(1.04); }
+
+  .topbar-title {
+    font-size: clamp(1.2rem, 3.5vw, 1.7rem);
+    font-weight: 900;
+    flex: 1;
+  }
+
+  /* Toggles */
+  .controls {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-shrink: 0;
+    padding-bottom: 6px;
+  }
+
+  .toggle-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 2.5px solid #e5e0d5;
+    border-radius: 100px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--text-light);
+    user-select: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .toggle-pill:hover { border-color: var(--yellow-dark); }
+
+  .toggle-switch {
+    width: 38px;
+    height: 22px;
+    border-radius: 100px;
+    background: #e5e0d5;
+    position: relative;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    transition: left 0.25s;
+  }
+  .toggle-pill.on .toggle-switch { background: var(--yellow-dark); }
+  .toggle-pill.on .toggle-switch::after { left: 19px; }
+  .toggle-pill.on { border-color: var(--yellow-dark); color: var(--text); }
+
+  /* Clock area — takes all remaining space */
+  .clock-area {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .clock-wrap {
+    width: 300px;
+    height: 300px;
+    flex-shrink: 0;
+  }
+
+  #clock-svg {
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    filter: drop-shadow(0 6px 24px rgba(0,0,0,0.10));
+  }
+
+  /* Digital time display */
+  .time-display {
+    flex-shrink: 0;
+    background: var(--card-bg);
+    border: 3px solid #e5e0d5;
+    border-radius: 20px;
+    padding: 8px 32px;
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+    transition: opacity 0.25s, transform 0.25s;
+    margin: 4px 0;
+  }
+  .time-display.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.92);
+  }
+
+  /* Legend */
+  .legend {
+    flex-shrink: 0;
+    display: flex;
+    gap: 18px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--text-light);
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 2px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch {
+    width: 28px; height: 10px;
+    border-radius: 100px;
+  }
+  .legend-swatch.hour   { background: var(--hour-color); }
+  .legend-swatch.minute { background: var(--minute-color); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <a class="back-btn" href="../index.html">← Zurück</a>
+    <span class="topbar-title">⏰ Uhr lernen</span>
+  </div>
+
+  <div class="controls">
+    <div class="toggle-pill on" id="toggle-hour-numbers" onclick="toggleHourNumbers(this)">
+      <span>Stunden-Ziffern</span>
+      <div class="toggle-switch"></div>
+    </div>
+    <div class="toggle-pill on" id="toggle-minute-numbers" onclick="toggleMinuteNumbers(this)">
+      <span>Minuten-Ziffern</span>
+      <div class="toggle-switch"></div>
+    </div>
+    <div class="toggle-pill on" id="toggle-digital" onclick="toggleDigital(this)">
+      <span>Digitalanzeige</span>
+      <div class="toggle-switch"></div>
+    </div>
+    <div class="toggle-pill" id="toggle-24h" onclick="toggle24h(this)">
+      <span>24-Stunden</span>
+      <div class="toggle-switch"></div>
+    </div>
+    <div class="toggle-pill on" id="toggle-linked" onclick="toggleLinked(this)">
+      <span>Zeiger verbunden</span>
+      <div class="toggle-switch"></div>
+    </div>
+  </div>
+
+  <div class="clock-area">
+    <div class="clock-wrap">
+      <svg id="clock-svg" viewBox="-42 -42 484 484" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Outer glow ring -->
+        <circle cx="200" cy="200" r="191" fill="none" stroke="oklch(88% 0.16 88)" stroke-width="6" opacity="0.6"/>
+
+        <!-- Clock face with warm tint -->
+        <circle cx="200" cy="200" r="185" fill="#fffef8" stroke="#2d2a20" stroke-width="7"/>
+
+        <!-- Colorful inner ring accent -->
+        <circle cx="200" cy="200" r="176" fill="none" stroke="oklch(88% 0.16 88 / 0.35)" stroke-width="3"/>
+
+        <!-- Minute ticks (60) -->
+        <g id="minute-ticks"></g>
+
+        <!-- Hour ticks (12) -->
+        <g id="hour-ticks"></g>
+
+        <!-- Minute numbers (inside, near ticks) -->
+        <g id="minute-numbers"></g>
+
+        <!-- Hour numbers (12h inner, 24h outer) -->
+        <g id="hour-numbers"></g>
+        <g id="hour-numbers-24"></g>
+
+        <!-- Minute hand shadow -->
+        <line id="minute-hand-shadow"
+          x1="202" y1="203" x2="202" y2="37"
+          stroke="rgba(43,125,232,0.18)" stroke-width="8" stroke-linecap="round"/>
+
+        <!-- Hour hand shadow -->
+        <line id="hour-hand-shadow"
+          x1="202" y1="203" x2="202" y2="88"
+          stroke="rgba(224,48,48,0.18)" stroke-width="16" stroke-linecap="round"/>
+
+        <!-- Hour hand (red, short, thick) -->
+        <line id="hour-hand"
+          x1="200" y1="215" x2="200" y2="86"
+          stroke="#e03030" stroke-width="13" stroke-linecap="round"/>
+
+        <!-- Minute hand (blue, long, thin) -->
+        <line id="minute-hand"
+          x1="200" y1="222" x2="200" y2="35"
+          stroke="#2b7de8" stroke-width="7" stroke-linecap="round"/>
+
+        <!-- Center cap -->
+        <circle cx="200" cy="200" r="13" fill="#2d2a20"/>
+        <circle cx="200" cy="200" r="7" fill="white"/>
+        <circle cx="200" cy="200" r="3.5" fill="#e5e0d5"/>
+
+        <!-- Invisible drag handles -->
+        <circle id="drag-hour"   cx="200" cy="86"  r="26" fill="transparent" style="cursor:grab"/>
+        <circle id="drag-minute" cx="200" cy="35"  r="26" fill="transparent" style="cursor:grab"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="time-display" id="time-display">12:00</div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch hour"></div><span>Stundenzeiger</span></div>
+    <div class="legend-item"><div class="legend-swatch minute"></div><span>Minutenzeiger</span></div>
+  </div>
+
+</div>
+
+<script>
+  const CX = 200, CY = 200;
+  const HOUR_LEN   = 114;  // from center to tip (hand goes from y=215 up)
+  const HOUR_TAIL  = 15;   // short tail behind center
+  const MIN_LEN    = 165;
+  const MIN_TAIL   = 22;
+
+  let hourAngle   = 0;
+  let minuteAngle = 0;
+  let showHourNumbers   = true;
+  let showMinuteNumbers = true;
+  let showDigital = true;
+  let show24h     = false;
+  let linked      = true;
+
+  function degToRad(d) { return d * Math.PI / 180; }
+
+  function handPoints(angle, length, tail) {
+    const r = degToRad(angle - 90);
+    return {
+      tip:  { x: CX + length * Math.cos(r), y: CY + length * Math.sin(r) },
+      base: { x: CX - tail   * Math.cos(r), y: CY - tail   * Math.sin(r) }
+    };
+  }
+
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function renderTicks() {
+    const minG  = document.getElementById('minute-ticks');
+    const hourG = document.getElementById('hour-ticks');
+    minG.innerHTML = '';
+    hourG.innerHTML = '';
+
+    for (let i = 0; i < 60; i++) {
+      if (i % 5 === 0) continue;
+      const a  = degToRad(i * 6 - 90);
+      const r1 = 163, r2 = 178;
+      const line = document.createElementNS(NS, 'line');
+      line.setAttribute('x1', CX + r1 * Math.cos(a));
+      line.setAttribute('y1', CY + r1 * Math.sin(a));
+      line.setAttribute('x2', CX + r2 * Math.cos(a));
+      line.setAttribute('y2', CY + r2 * Math.sin(a));
+      line.setAttribute('stroke', '#c5bfb0');
+      line.setAttribute('stroke-width', '2.5');
+      line.setAttribute('stroke-linecap', 'round');
+      minG.appendChild(line);
+    }
+
+    for (let i = 0; i < 12; i++) {
+      const a  = degToRad(i * 30 - 90);
+      const r1 = 152, r2 = 178;
+      const line = document.createElementNS(NS, 'line');
+      line.setAttribute('x1', CX + r1 * Math.cos(a));
+      line.setAttribute('y1', CY + r1 * Math.sin(a));
+      line.setAttribute('x2', CX + r2 * Math.cos(a));
+      line.setAttribute('y2', CY + r2 * Math.sin(a));
+      line.setAttribute('stroke', '#2d2a20');
+      line.setAttribute('stroke-width', '5.5');
+      line.setAttribute('stroke-linecap', 'round');
+      hourG.appendChild(line);
+    }
+  }
+
+  function renderHourNumbersSvg() {
+    const g   = document.getElementById('hour-numbers');
+    const g24 = document.getElementById('hour-numbers-24');
+    g.innerHTML   = '';
+    g24.innerHTML = '';
+    if (!showHourNumbers) return;
+
+    for (let i = 1; i <= 12; i++) {
+      const a  = degToRad(i * 30 - 90);
+      const r  = 128;
+      const r2 = 218;
+
+      // Inner 12h bubble
+      const circle = document.createElementNS(NS, 'circle');
+      circle.setAttribute('cx', CX + r * Math.cos(a));
+      circle.setAttribute('cy', CY + r * Math.sin(a));
+      circle.setAttribute('r', '19');
+      circle.setAttribute('fill', 'oklch(88% 0.16 88 / 0.55)');
+      g.appendChild(circle);
+
+      const text = document.createElementNS(NS, 'text');
+      text.setAttribute('x', CX + r * Math.cos(a));
+      text.setAttribute('y', CY + r * Math.sin(a));
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      text.setAttribute('font-family', 'Nunito, sans-serif');
+      text.setAttribute('font-size', '28');
+      text.setAttribute('font-weight', '900');
+      text.setAttribute('fill', '#2d2a20');
+      text.textContent = i;
+      g.appendChild(text);
+
+      // Outer 24h pill
+      const cx2 = CX + r2 * Math.cos(a);
+      const cy2 = CY + r2 * Math.sin(a);
+
+      const pill = document.createElementNS(NS, 'rect');
+      pill.setAttribute('x', cx2 - 20);
+      pill.setAttribute('y', cy2 - 13);
+      pill.setAttribute('width', '40');
+      pill.setAttribute('height', '26');
+      pill.setAttribute('rx', '13');
+      pill.setAttribute('fill', 'oklch(78% 0.14 240 / 0.55)');
+      g24.appendChild(pill);
+
+      const text2 = document.createElementNS(NS, 'text');
+      text2.setAttribute('x', cx2);
+      text2.setAttribute('y', cy2);
+      text2.setAttribute('text-anchor', 'middle');
+      text2.setAttribute('dominant-baseline', 'central');
+      text2.setAttribute('font-family', 'Nunito, sans-serif');
+      text2.setAttribute('font-size', '21');
+      text2.setAttribute('font-weight', '900');
+      text2.setAttribute('fill', '#1a3a6b');
+      text2.textContent = i + 12;
+      g24.appendChild(text2);
+    }
+  }
+
+  function renderMinuteNumbersSvg() {
+    const g = document.getElementById('minute-numbers');
+    g.innerHTML = '';
+    if (!showMinuteNumbers) return;
+
+    for (let i = 1; i <= 12; i++) {
+      const a   = degToRad(i * 30 - 90);
+      const r   = 100;
+      const min = i * 5; // 5, 10, 15, ... 60
+
+      const circle = document.createElementNS(NS, 'circle');
+      circle.setAttribute('cx', CX + r * Math.cos(a));
+      circle.setAttribute('cy', CY + r * Math.sin(a));
+      circle.setAttribute('r', '16');
+      circle.setAttribute('fill', 'oklch(78% 0.14 240 / 0.30)');
+      g.appendChild(circle);
+
+      const text = document.createElementNS(NS, 'text');
+      text.setAttribute('x', CX + r * Math.cos(a));
+      text.setAttribute('y', CY + r * Math.sin(a));
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      text.setAttribute('font-family', 'Nunito, sans-serif');
+      text.setAttribute('font-size', '19');
+      text.setAttribute('font-weight', '800');
+      text.setAttribute('fill', '#1a3a6b');
+      text.textContent = min;
+      g.appendChild(text);
+    }
+  }
+
+  function renderHands() {
+    const hp = handPoints(hourAngle,   HOUR_LEN, HOUR_TAIL);
+    const mp = handPoints(minuteAngle, MIN_LEN,  MIN_TAIL);
+
+    // Shadows (offset slightly)
+    const off = 3;
+    const hhs = document.getElementById('hour-hand-shadow');
+    hhs.setAttribute('x1', hp.base.x + off); hhs.setAttribute('y1', hp.base.y + off);
+    hhs.setAttribute('x2', hp.tip.x  + off); hhs.setAttribute('y2', hp.tip.y  + off);
+
+    const mhs = document.getElementById('minute-hand-shadow');
+    mhs.setAttribute('x1', mp.base.x + off); mhs.setAttribute('y1', mp.base.y + off);
+    mhs.setAttribute('x2', mp.tip.x  + off); mhs.setAttribute('y2', mp.tip.y  + off);
+
+    const hh = document.getElementById('hour-hand');
+    hh.setAttribute('x1', hp.base.x); hh.setAttribute('y1', hp.base.y);
+    hh.setAttribute('x2', hp.tip.x);  hh.setAttribute('y2', hp.tip.y);
+
+    const mh = document.getElementById('minute-hand');
+    mh.setAttribute('x1', mp.base.x); mh.setAttribute('y1', mp.base.y);
+    mh.setAttribute('x2', mp.tip.x);  mh.setAttribute('y2', mp.tip.y);
+
+    document.getElementById('drag-hour').setAttribute('cx', hp.tip.x);
+    document.getElementById('drag-hour').setAttribute('cy', hp.tip.y);
+    document.getElementById('drag-minute').setAttribute('cx', mp.tip.x);
+    document.getElementById('drag-minute').setAttribute('cy', mp.tip.y);
+
+    updateDisplay();
+  }
+
+  function updateDisplay() {
+    const hours   = ((hourAngle   % 360) / 30) % 12;
+    const minutes = ((minuteAngle % 360) / 6)  % 60;
+    const h12 = Math.floor(hours);
+    const m   = Math.floor(minutes);
+    let displayH;
+    if (show24h) {
+      // Add 12 to get the afternoon reading (e.g. 5 → 17)
+      // At 12 o'clock position h12=0 → show 0 in 24h means midnight; keep 12 for noon ambiguity
+      displayH = h12 === 0 ? 12 : h12 + 12;
+    } else {
+      displayH = h12 === 0 ? 12 : h12;
+    }
+    document.getElementById('time-display').textContent =
+      String(displayH).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+  }
+
+  function toggleHourNumbers(el) {
+    el.classList.toggle('on');
+    showHourNumbers = el.classList.contains('on');
+    renderHourNumbersSvg();
+  }
+
+  function toggleMinuteNumbers(el) {
+    el.classList.toggle('on');
+    showMinuteNumbers = el.classList.contains('on');
+    renderMinuteNumbersSvg();
+  }
+
+  function toggleDigital(el) {
+    el.classList.toggle('on');
+    showDigital = el.classList.contains('on');
+    document.getElementById('time-display').classList.toggle('hidden', !showDigital);
+    requestAnimationFrame(resizeClock);
+  }
+
+  function toggle24h(el) {
+    el.classList.toggle('on');
+    show24h = el.classList.contains('on');
+    updateDisplay();
+  }
+
+  function toggleLinked(el) {
+    el.classList.toggle('on');
+    linked = el.classList.contains('on');
+  }
+
+  // ── Drag logic ──────────────────────────────────────────────
+  let dragging  = null;
+  let prevAngle = null;
+
+  function svgPoint(clientX, clientY) {
+    const svg  = document.getElementById('clock-svg');
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) * (484 / rect.width)  - 42,
+      y: (clientY - rect.top)  * (484 / rect.height) - 42
+    };
+  }
+
+  function angleFromCenter(x, y) {
+    return (Math.atan2(y - CY, x - CX) * 180 / Math.PI + 90 + 360) % 360;
+  }
+
+  function startDrag(e, hand) {
+    e.preventDefault();
+    dragging = hand;
+    const cx = e.clientX ?? e.touches[0].clientX;
+    const cy = e.clientY ?? e.touches[0].clientY;
+    const p  = svgPoint(cx, cy);
+    prevAngle = angleFromCenter(p.x, p.y);
+    document.getElementById('clock-svg').style.cursor = 'grabbing';
+  }
+
+  function moveDrag(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const cx = e.clientX ?? e.touches?.[0]?.clientX;
+    const cy = e.clientY ?? e.touches?.[0]?.clientY;
+    if (cx == null) return;
+    const p     = svgPoint(cx, cy);
+    const angle = angleFromCenter(p.x, p.y);
+    let delta   = angle - prevAngle;
+    if (delta >  180) delta -= 360;
+    if (delta < -180) delta += 360;
+    prevAngle = angle;
+
+    if (dragging === 'minute') {
+      minuteAngle = (minuteAngle + delta + 360) % 360;
+      if (linked) hourAngle = (hourAngle + delta / 12 + 360) % 360;
+    } else {
+      hourAngle = (hourAngle + delta + 360) % 360;
+    }
+    renderHands();
+  }
+
+  function endDrag() {
+    dragging = null;
+    document.getElementById('clock-svg').style.cursor = '';
+  }
+
+  document.getElementById('drag-hour').addEventListener('mousedown',  e => startDrag(e, 'hour'));
+  document.getElementById('drag-hour').addEventListener('touchstart', e => startDrag(e, 'hour'), { passive: false });
+  document.getElementById('drag-minute').addEventListener('mousedown',  e => startDrag(e, 'minute'));
+  document.getElementById('drag-minute').addEventListener('touchstart', e => startDrag(e, 'minute'), { passive: false });
+
+  // Fallback: click anywhere on clock face
+  document.getElementById('clock-svg').addEventListener('mousedown', e => {
+    const p  = svgPoint(e.clientX, e.clientY);
+    const hp = handPoints(hourAngle,   HOUR_LEN, HOUR_TAIL);
+    const mp = handPoints(minuteAngle, MIN_LEN,  MIN_TAIL);
+    const dh = Math.hypot(p.x - hp.tip.x, p.y - hp.tip.y);
+    const dm = Math.hypot(p.x - mp.tip.x, p.y - mp.tip.y);
+    if (dh < 32 || dm < 32) startDrag(e, dh <= dm ? 'hour' : 'minute');
+  });
+
+  window.addEventListener('mousemove', moveDrag);
+  window.addEventListener('touchmove', moveDrag, { passive: false });
+  window.addEventListener('mouseup',   endDrag);
+  window.addEventListener('touchend',  endDrag);
+
+  // Responsive clock sizing
+  function resizeClock() {
+    const topbar   = document.querySelector('.topbar');
+    const controls = document.querySelector('.controls');
+    const display  = document.getElementById('time-display');
+    const legend   = document.querySelector('.legend');
+
+    const usedH = topbar.offsetHeight
+                + controls.offsetHeight
+                + (display.classList.contains('hidden') ? 0 : display.offsetHeight)
+                + legend.offsetHeight
+                + 48; // gaps + padding
+
+    const maxH = window.innerHeight - usedH;
+    const maxW = window.innerWidth  - 48;
+    const size = Math.max(120, Math.min(maxH, maxW));
+
+    const wrap = document.querySelector('.clock-wrap');
+    wrap.style.width  = size + 'px';
+    wrap.style.height = size + 'px';
+  }
+
+  window.addEventListener('resize', resizeClock);
+
+  // Init
+  renderTicks();
+  renderMinuteNumbersSvg();
+  renderHourNumbersSvg();
+  renderHands();
+  // Delay one frame so layout is settled before measuring
+  requestAnimationFrame(resizeClock);
+</script>
+</body>
+</html>
