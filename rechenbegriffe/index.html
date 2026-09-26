@@ -204,6 +204,17 @@
       .answer { font-size: 1.15rem; padding: 16px 8px; }
       .btn { font-size: 1.15rem; padding: 16px 28px; }
     }
+  /* ── CONFETTI ── */
+  @keyframes confettiFall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+    85%  { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(700deg); opacity: 0; }
+  }
+  @keyframes confettiWiggle {
+    0%,100% { margin-left: 0; }
+    25%     { margin-left: 12px; }
+    75%     { margin-left: -12px; }
+  }
   </style>
 </head>
 <body>
@@ -490,6 +501,7 @@
     });
     if (ok) {
       correct++;
+      launchConfetti();
       $('feedback').textContent = pick(['Super! 🎉', 'Richtig! ⭐', 'Klasse! 👏', 'Genau! 💪']);
       $('feedback').className = 'feedback ok';
     } else {
@@ -511,6 +523,7 @@
     const probe = r ? `${q} · ${b} + ${r} = ${a}` : `${q} · ${b} = ${a}, die Aufgabe geht auf – Rest 0.`;
     if (ok) {
       correct++;
+      launchConfetti();
       $('feedback').textContent = `${pick(['Super! 🎉', 'Richtig! ⭐', 'Klasse! 👏', 'Genau! 💪'])} ${probe}`;
       $('feedback').className = 'feedback ok';
     } else {
@@ -530,7 +543,30 @@
       : stars === 2 ? 'Sehr gut! Noch ein bisschen üben und du hast alles drauf.'
       : 'Schau dir die Lernkarten nochmal an und probier es dann wieder!';
     show('result');
+    if (correct === ROUNDS) launchConfetti();
   }
+
+  function launchConfetti() {
+    const colors = ['#e85d2f','#f5c842','#4a9e6e','#3b6dbf','#e040fb','#ff9800','#00bcd4','#e91e63'];
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
+    document.body.appendChild(container);
+    for (let i = 0; i < 100; i++) {
+      const p = document.createElement('div');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = 7 + Math.random() * 11, left = Math.random() * 100;
+      const delay = Math.random() * .7, dur = 1.5 + Math.random() * 1.4;
+      const isCircle = Math.random() > .4, wiggleDur = .4 + Math.random() * .4;
+      p.style.cssText = `position:absolute;top:-${size+10}px;left:${left}%;
+        width:${size}px;height:${isCircle ? size : size*(.4+Math.random()*.6)}px;
+        background:${color};border-radius:${isCircle?'50%':'2px'};
+        animation:confettiFall ${dur}s ${delay}s ease-in forwards,
+                  confettiWiggle ${wiggleDur}s ${delay}s ease-in-out infinite;`;
+      container.appendChild(p);
+    }
+    setTimeout(() => container.remove(), 3800);
+  }
+
 </script>
 </body>
 </html>
