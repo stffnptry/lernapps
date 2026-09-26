@@ -170,6 +170,21 @@
     .answer.right { background: var(--green); border-color: var(--green-dark); }
     .answer.wrong { background: oklch(88% 0.08 25); border-color: var(--red); }
     .answer:disabled { cursor: default; }
+    .rest-form { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; font-size: 1.6rem; font-weight: 900; }
+    .rest-form input {
+      width: 3.2em;
+      font: inherit;
+      text-align: center;
+      padding: 12px 6px;
+      border: 3px solid oklch(85% 0.03 240);
+      border-radius: 16px;
+      background: white;
+      color: var(--text);
+    }
+    .rest-form input:focus { outline: none; border-color: var(--blue-dark); }
+    .rest-form input.right { background: var(--green); border-color: var(--green-dark); }
+    .rest-form input.wrong { background: oklch(88% 0.08 25); border-color: var(--red); }
+    .rest-form .btn { font-size: 1.2rem; padding: 14px 28px; }
     .feedback { min-height: 2em; font-weight: 800; font-size: 1.15rem; max-width: 560px; }
     .feedback.ok { color: var(--green-dark); }
     .feedback.no { color: var(--red); }
@@ -200,6 +215,7 @@
     <div class="modes">
       <button class="btn" onclick="startCards()">🃏 Lernkarten</button>
       <button class="btn green" onclick="startQuiz()">🎯 Quiz</button>
+      <button class="btn" style="background:oklch(60% 0.16 50)" onclick="startRest()">🍬 Teilen mit Rest</button>
     </div>
   </section>
 
@@ -231,6 +247,11 @@
     <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
     <div class="question-card"><div class="question" id="question"></div></div>
     <div class="answers" id="answers"></div>
+    <form class="rest-form hidden" id="restForm" onsubmit="checkRest(event)">
+      <label>= <input id="restQ" type="number" inputmode="numeric" min="0" max="99" required aria-label="Ergebnis"></label>
+      <label>Rest <input id="restR" type="number" inputmode="numeric" min="0" max="9" required aria-label="Rest"></label>
+      <button class="btn green" id="restBtn">Prüfen</button>
+    </form>
     <div class="feedback" id="feedback"></div>
   </section>
 
@@ -240,7 +261,7 @@
     <div class="score" id="score"></div>
     <p class="intro-text" id="resultText"></p>
     <div class="modes">
-      <button class="btn green" onclick="startQuiz()">🔁 Nochmal</button>
+      <button class="btn green" onclick="restMode ? startRest() : startQuiz()">🔁 Nochmal</button>
       <button class="btn" onclick="startCards()">🃏 Lernkarten</button>
     </div>
   </section>
@@ -385,18 +406,40 @@
   ];
 
   const ROUNDS = 10;
-  let qNum, correct, current;
+  let qNum, correct, current, restMode = false;
 
-  function startQuiz() { qNum = 0; correct = 0; show('quiz'); nextQuestion(); }
+  function startQuiz() { restMode = false; qNum = 0; correct = 0; show('quiz'); nextQuestion(); }
+  function startRest() { restMode = true; qNum = 0; correct = 0; show('quiz'); nextQuestion(); }
+
+  // Reine Rest-Aufgabe im Einmaleins: Dividend höchstens 100, jede 3. etwa geht glatt auf (Rest 0)
+  function restTask() {
+    let a, b, q, r;
+    do {
+      b = rnd(2, 10); q = rnd(1, 10);
+      r = Math.random() < 0.3 ? 0 : rnd(1, b - 1);
+      a = b * q + r;
+    } while (a > 100);
+    return { a, b, q, r };
+  }
 
   function nextQuestion() {
     if (qNum >= ROUNDS) return showResult();
-    // Teilen mit Rest etwas häufiger, damit es genug geübt wird
-    current = pick([...QUESTION_TYPES, QUESTION_TYPES[5], QUESTION_TYPES[6]])();
-    $('progressBar').style.width = `${(qNum / ROUNDS) * 100}%`;
-    $('question').innerHTML = current.q;
+    $('answers').classList.toggle('hidden', restMode);
+    $('restForm').classList.toggle('hidden', !restMode);
     $('feedback').textContent = '';
     $('feedback').className = 'feedback';
+    $('progressBar').style.width = `${(qNum / ROUNDS) * 100}%`;
+    if (restMode) {
+      current = restTask();
+      $('question').innerHTML = `Rechne mit Rest:<span class="math">${current.a} : ${current.b}</span>`;
+      ['restQ', 'restR'].forEach(id => { $(id).value = ''; $(id).className = ''; $(id).disabled = false; });
+      $('restBtn').disabled = false;
+      $('restQ').focus();
+      return;
+    }
+    // Teilen mit Rest etwas häufiger, damit es genug geübt wird
+    current = pick([...QUESTION_TYPES, QUESTION_TYPES[5], QUESTION_TYPES[6]])();
+    $('question').innerHTML = current.q;
     $('answers').innerHTML = '';
     current.options.forEach(opt => {
       const btn = document.createElement('button');
@@ -424,6 +467,26 @@
     }
     qNum++;
     setTimeout(nextQuestion, ok ? 1100 : 2800);
+  }
+
+  function checkRest(e) {
+    e.preventDefault();
+    const { a, b, q, r } = current;
+    const okQ = +$('restQ').value === q, okR = +$('restR').value === r, ok = okQ && okR;
+    $('restQ').className = okQ ? 'right' : 'wrong';
+    $('restR').className = okR ? 'right' : 'wrong';
+    ['restQ', 'restR', 'restBtn'].forEach(id => $(id).disabled = true);
+    const probe = r ? `${q} · ${b} + ${r} = ${a}` : `${q} · ${b} = ${a}, die Aufgabe geht auf – Rest 0.`;
+    if (ok) {
+      correct++;
+      $('feedback').textContent = `${pick(['Super! 🎉', 'Richtig! ⭐', 'Klasse! 👏', 'Genau! 💪'])} ${probe}`;
+      $('feedback').className = 'feedback ok';
+    } else {
+      $('feedback').textContent = `Nicht ganz: ${a} : ${b} = ${q} Rest ${r}. Probe: ${probe}`;
+      $('feedback').className = 'feedback no';
+    }
+    qNum++;
+    setTimeout(nextQuestion, ok ? 1600 : 3500);
   }
 
   function showResult() {
