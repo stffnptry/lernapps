@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blitzlesen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fffdf7;
+      --blue: oklch(78% 0.14 240);
+      --blue-dark: oklch(55% 0.14 240);
+      --green: oklch(80% 0.14 155);
+      --green-dark: oklch(55% 0.14 155);
+      --red: oklch(65% 0.18 25);
+      --text: #2d2a20;
+      --text-light: #6b6457;
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 15% 20%, oklch(88% 0.10 240 / 0.35) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, oklch(90% 0.10 88 / 0.4) 0%, transparent 40%);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+    }
+
+    .back {
+      text-decoration: none;
+      color: var(--text-light);
+      font-weight: 800;
+      font-size: 1rem;
+      background: white;
+      padding: 10px 18px;
+      border-radius: 100px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      transition: transform 0.15s ease;
+    }
+    .back:hover { transform: translateX(-3px); }
+
+    .timer-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 100px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      font-weight: 900;
+      font-size: 1.3rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--blue-dark);
+    }
+    .timer-pill.warn { color: var(--red); animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 7vw, 3.4rem);
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    h1 .flash { color: var(--blue-dark); }
+
+    .intro-emoji { font-size: 72px; }
+
+    .intro-text {
+      font-size: 1.15rem;
+      color: var(--text-light);
+      font-weight: 700;
+      max-width: 460px;
+      line-height: 1.5;
+    }
+
+    .count-pill {
+      background: white;
+      padding: 8px 20px;
+      border-radius: 100px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      font-weight: 800;
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+
+    /* The word display */
+    .word-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 50px rgba(0,0,0,0.10);
+      padding: 60px 48px;
+      width: min(92vw, 800px);
+      min-height: 40vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .word {
+      font-size: clamp(2.4rem, 11vw, 6rem);
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--text);
+      text-wrap: balance;
+      animation: pop 0.25s ease;
+    }
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .btn {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      padding: 20px 56px;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      color: white;
+      background: var(--blue-dark);
+      box-shadow: 0 6px 20px oklch(55% 0.14 240 / 0.4);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: translateY(1px) scale(0.98); }
+
+    .btn.big { font-size: 1.8rem; padding: 24px 72px; }
+    .btn.green { background: var(--green-dark); box-shadow: 0 6px 20px oklch(55% 0.14 155 / 0.4); }
+
+    /* Result */
+    .result-number {
+      font-size: clamp(4rem, 20vw, 9rem);
+      font-weight: 900;
+      color: var(--green-dark);
+      line-height: 1;
+    }
+    .result-label { font-size: 1.4rem; font-weight: 800; color: var(--text-light); }
+
+    .hidden { display: none !important; }
+
+    .hint {
+      font-size: 0.95rem;
+      color: var(--text-light);
+      font-weight: 700;
+    }
+    kbd {
+      background: white;
+      border: 2px solid #e5e0d5;
+      border-radius: 8px;
+      padding: 2px 10px;
+      font-family: inherit;
+      font-weight: 800;
+      box-shadow: 0 2px 0 #e5e0d5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="../index.html">← Zurück</a>
+  <div class="timer-pill hidden" id="timerPill">⏱️ <span id="timer">1:00</span></div>
+</div>
+
+<div class="stage">
+
+  <!-- Intro screen -->
+  <div id="intro">
+    <div class="intro-emoji">⚡📖</div>
+    <h1>Blitz<span class="flash">lesen</span></h1>
+    <p class="intro-text">Lies so viele Wörter wie du kannst! Tippe auf <b>Weiter</b> für das nächste Wort. Du hast <b>1 Minute</b> Zeit. ⏱️</p>
+    <br>
+    <button class="btn big green" onclick="startGame()">Los geht's! 🚀</button>
+  </div>
+
+  <!-- Game screen -->
+  <div id="game" class="hidden" style="display:flex;flex-direction:column;align-items:center;gap:32px;">
+    <div class="count-pill">Gelesen: <span id="liveCount">0</span></div>
+    <div class="word-card"><div class="word" id="word">Wort</div></div>
+    <button class="btn big" onclick="nextWord()">Weiter →</button>
+    <p class="hint">Tipp: Du kannst auch die <kbd>Leertaste</kbd> oder <kbd>→</kbd> drücken.</p>
+  </div>
+
+  <!-- Result screen -->
+  <div id="result" class="hidden">
+    <div class="intro-emoji" id="resultEmoji">🎉</div>
+    <div class="result-number" id="resultCount">0</div>
+    <p class="result-label" id="resultLabel">Wörter in 1 Minute!</p>
+    <p class="intro-text" id="resultMsg"></p>
+    <br>
+    <button class="btn big green" onclick="restart()">Nochmal spielen 🔄</button>
+  </div>
+
+</div>
+
+<script>
+  // ---- Wörter-Datenbank: Leseanfänger (1.-2. Klasse) ----
+  const WOERTER = [
+    // Kurze, häufige Wörter
+    "Oma","Opa","Mama","Papa","Ball","Baum","Haus","Maus","Hund","Katze",
+    "Hase","Igel","Ente","Fisch","Vogel","Blume","Wiese","Sonne","Mond","Stern",
+    "Auto","Bus","Zug","Boot","Rad","Tisch","Stuhl","Bett","Tür","Fenster",
+    "Buch","Stift","Tasche","Schuh","Hut","Jacke","Hose","Kleid","Socke","Mütze",
+    "Apfel","Birne","Banane","Brot","Milch","Käse","Wasser","Saft","Kuchen","Eis",
+    "Wald","Feld","Berg","Fluss","See","Meer","Sand","Stein","Blatt","Ast",
+    "Hand","Fuß","Kopf","Auge","Ohr","Nase","Mund","Haar","Arm","Bein",
+    "rot","blau","grün","gelb","schwarz","weiß","groß","klein","warm","kalt",
+    "schnell","langsam","gut","müde","froh","lieb","süß","laut","leise","neu",
+    "gehen","laufen","springen","lachen","weinen","spielen","malen","lesen","singen","tanzen",
+    "essen","trinken","schlafen","wachen","sehen","hören","rufen","fragen","helfen","suchen",
+    "Sommer","Winter","Regen","Schnee","Wind","Wolke","Blitz","Donner","Nebel","Frost",
+    "Schule","Lehrer","Klasse","Pause","Tafel","Kreide","Heft","Ranzen","Freund","Kind",
+    "Löwe","Tiger","Affe","Bär","Wolf","Fuchs","Reh","Kuh","Pferd","Schwein",
+    "Biene","Wespe","Käfer","Wurm","Spinne","Frosch","Schnecke","Ameise","Falter","Fliege",
+
+    // Kurze Ausdrücke (3-4 Wörter)
+    "Der Ball rollt",
+    "Die Katze schläft",
+    "Ich mag Eis",
+    "Wir gehen raus",
+    "Das Auto fährt",
+    "Der Hund bellt",
+    "Die Sonne scheint",
+    "Es regnet heute",
+    "Oma backt Kuchen",
+    "Wir spielen im Sand",
+    "Der Vogel singt schön",
+    "Ich lese ein Buch",
+    "Die Blume ist rot",
+    "Papa liest vor",
+    "Wir malen ein Bild",
+    "Die Maus ist klein",
+    "Der Baum ist groß",
+    "Ich habe Hunger",
+    "Wir fahren Rad",
+    "Das Kind lacht",
+    "Die Ente schwimmt",
+    "Der Fisch springt hoch",
+    "Wir bauen eine Burg",
+    "Die Kinder spielen Ball",
+    "Der Schnee ist kalt",
+    "Ich putze die Zähne",
+    "Mama kocht das Essen",
+    "Der Wind weht stark",
+    "Wir laufen zur Schule",
+    "Die Biene sammelt Honig",
+    "Das Boot fährt schnell",
+    "Ich male eine Sonne",
+    "Der Igel ist müde",
+    "Wir singen ein Lied",
+    "Die Blätter fallen runter",
+    "Der Frosch hüpft weg",
+    "Ich trinke kalte Milch",
+    "Die Uhr tickt laut",
+    "Wir essen ein Brot",
+    "Der Zug ist da"
+  ];
+
+  const GAME_SECONDS = 60;
+
+  let deck = [];
+  let deckIndex = 0;
+  let count = 0;
+  let timeLeft = GAME_SECONDS;
+  let timerId = null;
+  let running = false;
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function drawWord() {
+    if (deckIndex >= deck.length) {   // Deck aufgebraucht → neu mischen
+      deck = shuffle(WOERTER);
+      deckIndex = 0;
+    }
+    const w = deck[deckIndex++];
+    document.getElementById('word').textContent = w;
+    // Neu-Animation erzwingen
+    const el = document.getElementById('word');
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+  }
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m + ':' + String(sec).padStart(2, '0');
+  }
+
+  function startGame() {
+    deck = shuffle(WOERTER);
+    deckIndex = 0;
+    count = 0;
+    timeLeft = GAME_SECONDS;
+    running = true;
+
+    document.getElementById('intro').classList.add('hidden');
+    document.getElementById('result').classList.add('hidden');
+    document.getElementById('game').classList.remove('hidden');
+    document.getElementById('timerPill').classList.remove('hidden');
+    document.getElementById('liveCount').textContent = '0';
+    document.getElementById('timer').textContent = fmt(timeLeft);
+    document.getElementById('timerPill').classList.remove('warn');
+
+    drawWord();
+
+    timerId = setInterval(() => {
+      timeLeft--;
+      document.getElementById('timer').textContent = fmt(timeLeft);
+      if (timeLeft <= 10) document.getElementById('timerPill').classList.add('warn');
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+  }
+
+  function nextWord() {
+    if (!running) return;
+    count++;
+    document.getElementById('liveCount').textContent = count;
+    drawWord();
+  }
+
+  function endGame() {
+    running = false;
+    clearInterval(timerId);
+    document.getElementById('game').classList.add('hidden');
+    document.getElementById('timerPill').classList.add('hidden');
+
+    document.getElementById('resultCount').textContent = count;
+    document.getElementById('resultLabel').textContent =
+      (count === 1 ? 'Wort' : 'Wörter') + ' in 1 Minute!';
+
+    let emoji, msg;
+    if (count >= 40)      { emoji = '🏆'; msg = 'Wahnsinn! Du bist ein Lese-Blitz! ⚡'; }
+    else if (count >= 25) { emoji = '🌟'; msg = 'Super gelesen! Klasse gemacht!'; }
+    else if (count >= 12) { emoji = '🎉'; msg = 'Toll! Übe weiter, dann wirst du noch schneller!'; }
+    else                  { emoji = '💪'; msg = 'Gut gemacht! Beim nächsten Mal schaffst du mehr!'; }
+    document.getElementById('resultEmoji').textContent = emoji;
+    document.getElementById('resultMsg').textContent = msg;
+
+    document.getElementById('result').classList.remove('hidden');
+  }
+
+  function restart() {
+    document.getElementById('result').classList.add('hidden');
+    document.getElementById('intro').classList.remove('hidden');
+  }
+
+  // Tastatur-Steuerung
+  document.addEventListener('keydown', (e) => {
+    if (running && (e.code === 'Space' || e.code === 'ArrowRight' || e.code === 'Enter')) {
+      e.preventDefault();
+      nextWord();
+    }
+  });
+</script>
+
+</body>
+</html>

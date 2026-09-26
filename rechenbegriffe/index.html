@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rechenbegriffe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fffdf7;
+      --yellow: oklch(88% 0.16 88);
+      --blue: oklch(78% 0.14 240);
+      --blue-dark: oklch(55% 0.14 240);
+      --green: oklch(80% 0.14 155);
+      --green-dark: oklch(55% 0.14 155);
+      --red: oklch(65% 0.18 25);
+      --text: #2d2a20;
+      --text-light: #6b6457;
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 15% 20%, oklch(88% 0.10 240 / 0.35) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, oklch(90% 0.10 88 / 0.4) 0%, transparent 40%);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      gap: 12px;
+    }
+
+    .pill {
+      text-decoration: none;
+      color: var(--text-light);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      background: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 100px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .pill:hover { transform: translateY(-2px); }
+
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 16px 40px;
+      gap: 28px;
+      text-align: center;
+    }
+
+    h1 { font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 900; letter-spacing: -0.5px; }
+    h1 span { color: var(--blue-dark); }
+    .intro-emoji { font-size: 64px; letter-spacing: 8px; }
+    .intro-text { font-size: 1.15rem; color: var(--text-light); font-weight: 700; max-width: 480px; line-height: 1.5; }
+
+    .modes { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    .btn {
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 1.35rem;
+      padding: 18px 40px;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      color: white;
+      background: var(--blue-dark);
+      box-shadow: 0 6px 20px oklch(55% 0.14 240 / 0.4);
+      transition: transform 0.12s ease;
+    }
+    .btn.green { background: var(--green-dark); box-shadow: 0 6px 20px oklch(55% 0.14 155 / 0.4); }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: translateY(1px) scale(0.98); }
+
+    .hidden { display: none !important; }
+
+    /* Lernkarten */
+    .flashcard {
+      width: min(92vw, 560px);
+      height: min(62vh, 420px);
+      perspective: 1200px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font: inherit;
+      color: inherit;
+    }
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s ease;
+      transform-style: preserve-3d;
+    }
+    .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 50px rgba(0,0,0,0.10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 28px;
+      background: white;
+    }
+    .face.front { border-top: 14px solid var(--c, var(--blue)); }
+    .face.back { transform: rotateY(180deg); background: #fff; border-top: 14px solid var(--c, var(--blue)); }
+    .term { font-size: clamp(2.2rem, 10vw, 4rem); font-weight: 900; line-height: 1.1; }
+    .hint { color: var(--text-light); font-weight: 700; font-size: 1rem; }
+    .back-title { font-size: 1.6rem; font-weight: 900; }
+    .example { font-size: clamp(1.8rem, 8vw, 2.8rem); font-weight: 900; font-variant-numeric: tabular-nums; }
+    .explain { font-size: 1.15rem; font-weight: 700; color: var(--text-light); line-height: 1.5; max-width: 440px; }
+    .explain b { color: var(--text); }
+
+    .card-nav { display: flex; align-items: center; gap: 16px; }
+    .card-nav .count { font-weight: 800; color: var(--text-light); min-width: 70px; }
+    .round { width: 60px; height: 60px; padding: 0; font-size: 1.6rem; }
+
+    /* Quiz */
+    .progress { width: min(92vw, 560px); height: 14px; background: white; border-radius: 100px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--green); width: 0; transition: width 0.3s ease; }
+    .question-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 50px rgba(0,0,0,0.10);
+      padding: 36px 28px;
+      width: min(92vw, 560px);
+    }
+    .question { font-size: clamp(1.4rem, 5.5vw, 2rem); font-weight: 900; line-height: 1.3; text-wrap: balance; }
+    .question .math { display: block; margin-top: 12px; font-size: 1.3em; color: var(--blue-dark); font-variant-numeric: tabular-nums; }
+    .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: min(92vw, 560px); }
+    .answer {
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 1.4rem;
+      padding: 20px 12px;
+      border: 3px solid transparent;
+      border-radius: 20px;
+      background: white;
+      color: var(--text);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+    .answer:hover:not(:disabled) { transform: translateY(-2px); }
+    .answer.right { background: var(--green); border-color: var(--green-dark); }
+    .answer.wrong { background: oklch(88% 0.08 25); border-color: var(--red); }
+    .answer:disabled { cursor: default; }
+    .feedback { min-height: 2em; font-weight: 800; font-size: 1.15rem; max-width: 560px; }
+    .feedback.ok { color: var(--green-dark); }
+    .feedback.no { color: var(--red); }
+
+    .score { font-size: clamp(3rem, 14vw, 6rem); font-weight: 900; color: var(--blue-dark); line-height: 1; }
+    .stars { font-size: 3rem; letter-spacing: 6px; }
+
+    @media (max-width: 420px) {
+      .answer { font-size: 1.15rem; padding: 16px 8px; }
+      .btn { font-size: 1.15rem; padding: 16px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="pill" href="../index.html">← Alle Apps</a>
+  <button class="pill hidden" id="homeBtn" onclick="show('intro')">🏠 Menü</button>
+</div>
+
+<main class="stage">
+
+  <!-- Intro -->
+  <section id="intro" class="stage">
+    <div class="intro-emoji">➕➖✖️➗</div>
+    <h1>Rechen<span>begriffe</span></h1>
+    <p class="intro-text">Was heißt eigentlich „subtrahieren"? Und wie nennt man das Ergebnis beim Malnehmen? Lerne die Fachwörter mit Lernkarten und teste dich dann im Quiz!</p>
+    <div class="modes">
+      <button class="btn" onclick="startCards()">🃏 Lernkarten</button>
+      <button class="btn green" onclick="startQuiz()">🎯 Quiz</button>
+    </div>
+  </section>
+
+  <!-- Lernkarten -->
+  <section id="cards" class="stage hidden">
+    <button class="flashcard" id="flashcard" onclick="this.classList.toggle('flipped')" aria-label="Karte umdrehen">
+      <div class="flashcard-inner">
+        <div class="face front">
+          <div class="term" id="cardFront"></div>
+          <div class="hint">👆 Tippen zum Umdrehen</div>
+        </div>
+        <div class="face back">
+          <div class="back-title" id="cardTitle"></div>
+          <div class="example" id="cardExample"></div>
+          <div class="explain" id="cardExplain"></div>
+        </div>
+      </div>
+    </button>
+    <div class="card-nav">
+      <button class="btn round" onclick="moveCard(-1)" aria-label="Vorherige Karte">←</button>
+      <span class="count" id="cardCount"></span>
+      <button class="btn round" onclick="moveCard(1)" aria-label="Nächste Karte">→</button>
+    </div>
+    <button class="pill" onclick="shuffleCards()">🔀 Mischen</button>
+  </section>
+
+  <!-- Quiz -->
+  <section id="quiz" class="stage hidden">
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="question-card"><div class="question" id="question"></div></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <!-- Ergebnis -->
+  <section id="result" class="stage hidden">
+    <div class="stars" id="stars"></div>
+    <div class="score" id="score"></div>
+    <p class="intro-text" id="resultText"></p>
+    <div class="modes">
+      <button class="btn green" onclick="startQuiz()">🔁 Nochmal</button>
+      <button class="btn" onclick="startCards()">🃏 Lernkarten</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ---------- Daten ----------
+  const OPS = [
+    { verb: 'addieren',       word: 'plus',    sign: '+', result: 'Summe',     parts: ['Summand', 'Summand'] },
+    { verb: 'subtrahieren',   word: 'minus',   sign: '−', result: 'Differenz', parts: ['Minuend', 'Subtrahend'] },
+    { verb: 'multiplizieren', word: 'mal',     sign: '·', result: 'Produkt',   parts: ['Faktor', 'Faktor'] },
+    { verb: 'dividieren',     word: 'geteilt', sign: ':', result: 'Quotient',  parts: ['Dividend', 'Divisor'] },
+  ];
+
+  const CARDS = [
+    { front: 'addieren',       c: 'var(--yellow)', title: '➕ plus rechnen',   ex: '4 + 3 = 7',  text: 'Man zählt zusammen. <b>4</b> und <b>3</b> sind die <b>Summanden</b>, <b>7</b> ist die <b>Summe</b>.' },
+    { front: 'subtrahieren',   c: 'var(--blue)',   title: '➖ minus rechnen',  ex: '9 − 4 = 5',  text: 'Man nimmt weg. <b>9</b> ist der <b>Minuend</b>, <b>4</b> der <b>Subtrahend</b>, <b>5</b> ist die <b>Differenz</b>.' },
+    { front: 'multiplizieren', c: 'var(--green)',  title: '✖️ mal rechnen',    ex: '3 · 5 = 15', text: 'Man nimmt eine Zahl mehrmals. <b>3</b> und <b>5</b> sind die <b>Faktoren</b>, <b>15</b> ist das <b>Produkt</b>.' },
+    { front: 'dividieren',     c: 'oklch(80% 0.12 330)', title: '➗ geteilt rechnen', ex: '12 : 3 = 4', text: 'Man teilt gerecht auf. <b>12</b> ist der <b>Dividend</b>, <b>3</b> der <b>Divisor</b>, <b>4</b> ist der <b>Quotient</b>.' },
+    { front: 'Teilen mit Rest', c: 'oklch(78% 0.14 50)', title: '🍬 Was übrig bleibt', ex: '14 : 4 = 3 R 2', text: '14 Bonbons für 4 Kinder: Jedes bekommt <b>3</b>, <b>2</b> bleiben übrig. Das ist der <b>Rest</b>. Probe: 3 · 4 + 2 = 14. Der Rest ist immer <b>kleiner</b> als der Divisor!' },
+    { front: 'die Summe',      c: 'var(--yellow)', title: 'Ergebnis beim Addieren',       ex: '6 + 2 = <u>8</u>',   text: 'Die <b>Summe</b> von 6 und 2 ist 8.' },
+    { front: 'die Differenz',  c: 'var(--blue)',   title: 'Ergebnis beim Subtrahieren',   ex: '10 − 7 = <u>3</u>',  text: 'Die <b>Differenz</b> von 10 und 7 ist 3.' },
+    { front: 'das Produkt',    c: 'var(--green)',  title: 'Ergebnis beim Multiplizieren', ex: '4 · 6 = <u>24</u>',  text: 'Das <b>Produkt</b> von 4 und 6 ist 24.' },
+    { front: 'der Quotient',   c: 'oklch(80% 0.12 330)', title: 'Ergebnis beim Dividieren', ex: '20 : 5 = <u>4</u>', text: 'Der <b>Quotient</b> von 20 und 5 ist 4.' },
+  ];
+
+  // ---------- Helfer ----------
+  const $ = id => document.getElementById(id);
+  const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function show(id) {
+    ['intro', 'cards', 'quiz', 'result'].forEach(s => $(s).classList.toggle('hidden', s !== id));
+    $('homeBtn').classList.toggle('hidden', id === 'intro');
+  }
+
+  // Zufällige Aufgabe passend zur Rechenart (Zahlenraum bis 100)
+  function task(op) {
+    if (op.sign === '+') { const a = rnd(5, 60), b = rnd(3, 39); return [a, b, a + b]; }
+    if (op.sign === '−') { const a = rnd(20, 99), b = rnd(3, a - 5); return [a, b, a - b]; }
+    if (op.sign === '·') { const a = rnd(2, 10), b = rnd(2, 10); return [a, b, a * b]; }
+    const b = rnd(2, 10), q = rnd(2, 10); return [b * q, b, q];
+  }
+
+  // Zahl-Antworten: richtige + 3 plausible falsche
+  function numOptions(right) {
+    const set = new Set([right]);
+    while (set.size < 4) {
+      const v = right + pick([-10, -2, -1, 1, 2, 10, rnd(-6, 6)]);
+      if (v >= 0) set.add(v);
+    }
+    return shuffle([...set]);
+  }
+
+  // ---------- Lernkarten ----------
+  let deck = CARDS, cardIdx = 0;
+
+  function renderCard() {
+    const c = deck[cardIdx];
+    $('flashcard').classList.remove('flipped');
+    $('flashcard').style.setProperty('--c', c.c);
+    $('cardFront').textContent = c.front;
+    $('cardTitle').textContent = c.title;
+    $('cardExample').innerHTML = c.ex;
+    $('cardExplain').innerHTML = c.text;
+    $('cardCount').textContent = `${cardIdx + 1} / ${deck.length}`;
+  }
+  function startCards() { deck = CARDS; cardIdx = 0; renderCard(); show('cards'); }
+  function moveCard(d) { cardIdx = (cardIdx + d + deck.length) % deck.length; renderCard(); }
+  function shuffleCards() { deck = shuffle(CARDS); cardIdx = 0; renderCard(); }
+
+  // ---------- Quiz ----------
+  // Jede Fragenart liefert { q, options, right, explain }
+  const QUESTION_TYPES = [
+    // Verb -> Zeichen
+    () => {
+      const op = pick(OPS);
+      return { q: `Welches Rechenzeichen gehört zu <b>${op.verb}</b>?`,
+               options: shuffle(OPS.map(o => o.sign)), right: op.sign,
+               explain: `${op.verb} = ${op.word} = ${op.sign}` };
+    },
+    // Aufgabe -> Verb
+    () => {
+      const op = pick(OPS), [a, b] = task(op);
+      return { q: `Was machst du bei dieser Aufgabe?<span class="math">${a} ${op.sign} ${b}</span>`,
+               options: shuffle(OPS.map(o => o.verb)), right: op.verb,
+               explain: `${op.sign} bedeutet ${op.verb}.` };
+    },
+    // Verb -> Name des Ergebnisses
+    () => {
+      const op = pick(OPS);
+      return { q: `Wie heißt das Ergebnis beim <b>${op.verb[0].toUpperCase() + op.verb.slice(1)}</b>?`,
+               options: shuffle(OPS.map(o => o.result)), right: op.result,
+               explain: `Beim ${op.verb[0].toUpperCase() + op.verb.slice(1)} heißt das Ergebnis ${op.result}.` };
+    },
+    // Ergebnis-Begriff -> ausrechnen
+    () => {
+      const op = pick(OPS), [a, b, r] = task(op);
+      const art = { Summe: 'die', Differenz: 'die', Produkt: 'das', Quotient: 'der' }[op.result];
+      return { q: `Wie groß ist ${art} <b>${op.result}</b> von ${a} und ${b}?`,
+               options: numOptions(r), right: r,
+               explain: `${a} ${op.sign} ${b} = ${r}` };
+    },
+    // Teile einer Aufgabe benennen
+    () => {
+      const op = pick(OPS), pos = rnd(0, 2);
+      let a, b, r;
+      do { [a, b, r] = task(op); } while (a === b || a === r || b === r); // sonst mehrdeutig (z. B. 10 − 5 = 5)
+      const names = [...op.parts, op.result];
+      const all = ['Summand', 'Minuend', 'Subtrahend', 'Faktor', 'Dividend', 'Divisor', 'Summe', 'Differenz', 'Produkt', 'Quotient'];
+      const wrong = shuffle(all.filter(n => n !== names[pos]));
+      const nums = [a, b, r];
+      return { q: `Wie heißt die <u>${nums[pos]}</u> in dieser Aufgabe?<span class="math">${a} ${op.sign} ${b} = ${r}</span>`,
+               options: shuffle([names[pos], ...wrong.slice(0, 3)]), right: names[pos],
+               explain: `${a} ${op.sign} ${b} = ${r}: ${names[0]} ${op.sign} ${names[1]} = ${names[2]}` };
+    },
+    // Teilen mit Rest: Rest finden
+    () => {
+      const b = rnd(3, 9), q = rnd(2, 9), rest = rnd(1, b - 1), a = b * q + rest;
+      return { q: `Welcher <b>Rest</b> bleibt übrig?<span class="math">${a} : ${b} = ${q} Rest ?</span>`,
+               options: shuffle([rest, ...shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8].filter(x => x !== rest)).slice(0, 3)]), right: rest,
+               explain: `${q} · ${b} = ${q * b}, bis ${a} fehlen noch ${rest}.` };
+    },
+    // Teilen mit Rest: ganze Aufgabe
+    () => {
+      const b = rnd(3, 9), q = rnd(2, 9), rest = rnd(1, b - 1), a = b * q + rest;
+      const right = `${q} R ${rest}`;
+      const set = new Set([right, `${q + 1} R ${rest}`, `${q} R ${rest + b}`, `${q - 1} R ${rest + 1}`]);
+      return { q: `Rechne mit Rest:<span class="math">${a} : ${b} = ?</span>`,
+               options: shuffle([...set]), right,
+               explain: `${q} · ${b} + ${rest} = ${a}. Der Rest muss kleiner als ${b} sein!` };
+    },
+  ];
+
+  const ROUNDS = 10;
+  let qNum, correct, current;
+
+  function startQuiz() { qNum = 0; correct = 0; show('quiz'); nextQuestion(); }
+
+  function nextQuestion() {
+    if (qNum >= ROUNDS) return showResult();
+    // Teilen mit Rest etwas häufiger, damit es genug geübt wird
+    current = pick([...QUESTION_TYPES, QUESTION_TYPES[5], QUESTION_TYPES[6]])();
+    $('progressBar').style.width = `${(qNum / ROUNDS) * 100}%`;
+    $('question').innerHTML = current.q;
+    $('feedback').textContent = '';
+    $('feedback').className = 'feedback';
+    $('answers').innerHTML = '';
+    current.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'answer';
+      btn.textContent = opt;
+      btn.onclick = () => answer(btn, opt);
+      $('answers').appendChild(btn);
+    });
+  }
+
+  function answer(btn, opt) {
+    const ok = opt === current.right;
+    [...$('answers').children].forEach(b => {
+      b.disabled = true;
+      if (b.textContent === String(current.right)) b.classList.add('right');
+    });
+    if (ok) {
+      correct++;
+      $('feedback').textContent = pick(['Super! 🎉', 'Richtig! ⭐', 'Klasse! 👏', 'Genau! 💪']);
+      $('feedback').className = 'feedback ok';
+    } else {
+      btn.classList.add('wrong');
+      $('feedback').textContent = `Nicht ganz. ${current.explain}`;
+      $('feedback').className = 'feedback no';
+    }
+    qNum++;
+    setTimeout(nextQuestion, ok ? 1100 : 2800);
+  }
+
+  function showResult() {
+    $('progressBar').style.width = '100%';
+    const stars = correct >= 9 ? 3 : correct >= 6 ? 2 : correct >= 3 ? 1 : 0;
+    $('stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+    $('score').textContent = `${correct} / ${ROUNDS}`;
+    $('resultText').textContent = stars === 3 ? 'Wow, du bist ein echter Rechenprofi! 🏆'
+      : stars === 2 ? 'Sehr gut! Noch ein bisschen üben und du hast alles drauf.'
+      : 'Schau dir die Lernkarten nochmal an und probier es dann wieder!';
+    show('result');
+  }
+</script>
+</body>
+</html>
