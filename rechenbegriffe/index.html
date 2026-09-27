@@ -137,7 +137,7 @@
     .explain b { color: var(--text); }
 
     .card-nav { display: flex; align-items: center; gap: 16px; }
-    .card-nav .count { font-weight: 800; color: var(--text-light); min-width: 70px; }
+    .count { font-weight: 800; color: var(--text-light); min-width: 70px; }
     .round { width: 60px; height: 60px; padding: 0; font-size: 1.6rem; }
 
     /* Quiz */
@@ -268,6 +268,7 @@
   <!-- Quiz -->
   <section id="quiz" class="stage hidden">
     <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <span class="count" id="quizCount"></span>
     <div class="question-card"><div class="question" id="question"></div></div>
     <div class="answers" id="answers"></div>
     <form class="rest-form hidden" id="restForm" onsubmit="checkRest(event)">
@@ -461,6 +462,7 @@
     $('feedback').textContent = '';
     $('feedback').className = 'feedback';
     $('progressBar').style.width = `${(qNum / ROUNDS) * 100}%`;
+    $('quizCount').textContent = `Aufgabe ${qNum + 1} von ${ROUNDS}`;
     if (restMode) {
       current = restTask();
       $('question').innerHTML = `Rechne mit Rest:<span class="math">${current.a} : ${current.b}</span>`;
