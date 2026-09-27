@@ -189,10 +189,7 @@
     .ov-card { background: white; border-radius: 20px; border-top: 10px solid var(--c); box-shadow: 0 4px 20px rgba(0,0,0,0.07); padding: 18px 14px; }
     .ov-head { font-size: 1.4rem; font-weight: 900; }
     .ov-sub { color: var(--text-light); font-weight: 700; margin-bottom: 12px; }
-    .ov-task { display: flex; justify-content: center; align-items: flex-start; gap: 6px; }
-    .ov-task > div { display: flex; flex-direction: column; align-items: center; min-width: 1.4em; }
     .ov-num { font-size: 1.8rem; font-weight: 900; font-variant-numeric: tabular-nums; }
-    .ov-label { font-size: 0.8rem; font-weight: 800; color: var(--blue-dark); }
     .feedback { min-height: 2em; font-weight: 800; font-size: 1.15rem; max-width: 560px; }
     .feedback.ok { color: var(--green-dark); }
     .feedback.no { color: var(--red); }
@@ -230,7 +227,7 @@
   <section id="intro" class="stage">
     <div class="intro-emoji">➕➖✖️➗</div>
     <h1>Rechen<span>begriffe</span></h1>
-    <p class="intro-text">Was heißt eigentlich „subtrahieren"? Und wie nennt man das Ergebnis beim Malnehmen? Lerne die Fachwörter mit Lernkarten und teste dich dann im Quiz!</p>
+    <p class="intro-text">Was heißt eigentlich „subtrahieren"? Und was bedeutet „dividieren"? Lerne die Rechenwörter mit Lernkarten und teste dich dann im Quiz!</p>
     <div class="modes">
       <button class="btn" onclick="startCards()">🃏 Lernkarten</button>
       <button class="btn green" onclick="startQuiz()">🎯 Quiz</button>
@@ -297,22 +294,22 @@
 <script>
   // ---------- Daten ----------
   const OPS = [
-    { verb: 'addieren',       word: 'plus',    sign: '+', result: 'Summe',     parts: ['Summand', 'Summand'] },
-    { verb: 'subtrahieren',   word: 'minus',   sign: '−', result: 'Differenz', parts: ['Minuend', 'Subtrahend'] },
-    { verb: 'multiplizieren', word: 'mal',     sign: '·', result: 'Produkt',   parts: ['Faktor', 'Faktor'] },
-    { verb: 'dividieren',     word: 'geteilt', sign: ':', result: 'Quotient',  parts: ['Dividend', 'Divisor'] },
+    { verb: 'addieren',       word: 'plus',    sign: '+', does: 'Man zählt zusammen.',          ask: (a, b) => `Addiere ${a} und ${b}.` },
+    { verb: 'subtrahieren',   word: 'minus',   sign: '−', does: 'Man nimmt etwas weg.',         ask: (a, b) => `Subtrahiere ${b} von ${a}.` },
+    { verb: 'multiplizieren', word: 'mal',     sign: '·', does: 'Man nimmt eine Zahl mehrmals.', ask: (a, b) => `Multipliziere ${a} mit ${b}.` },
+    { verb: 'dividieren',     word: 'geteilt', sign: ':', does: 'Man teilt gerecht auf.',       ask: (a, b) => `Dividiere ${a} durch ${b}.` },
   ];
 
   const CARDS = [
-    { front: 'addieren',       c: 'var(--yellow)', title: '➕ plus rechnen',   ex: '4 + 3 = 7',  text: 'Man zählt zusammen. <b>4</b> und <b>3</b> sind die <b>Summanden</b>, <b>7</b> ist die <b>Summe</b>.' },
-    { front: 'subtrahieren',   c: 'var(--blue)',   title: '➖ minus rechnen',  ex: '9 − 4 = 5',  text: 'Man nimmt weg. <b>9</b> ist der <b>Minuend</b>, <b>4</b> der <b>Subtrahend</b>, <b>5</b> ist die <b>Differenz</b>.' },
-    { front: 'multiplizieren', c: 'var(--green)',  title: '✖️ mal rechnen',    ex: '3 · 5 = 15', text: 'Man nimmt eine Zahl mehrmals. <b>3</b> und <b>5</b> sind die <b>Faktoren</b>, <b>15</b> ist das <b>Produkt</b>.' },
-    { front: 'dividieren',     c: 'oklch(80% 0.12 330)', title: '➗ geteilt rechnen', ex: '12 : 3 = 4', text: 'Man teilt gerecht auf. <b>12</b> ist der <b>Dividend</b>, <b>3</b> der <b>Divisor</b>, <b>4</b> ist der <b>Quotient</b>.' },
-    { front: 'Teilen mit Rest', c: 'oklch(78% 0.14 50)', title: '🍬 Was übrig bleibt', ex: '14 : 4 = 3 R 2', text: '14 Bonbons für 4 Kinder: Jedes bekommt <b>3</b>, <b>2</b> bleiben übrig. Das ist der <b>Rest</b>. Probe: 3 · 4 + 2 = 14. Der Rest ist immer <b>kleiner</b> als der Divisor!' },
-    { front: 'die Summe',      c: 'var(--yellow)', title: 'Ergebnis beim Addieren',       ex: '6 + 2 = <u>8</u>',   text: 'Die <b>Summe</b> von 6 und 2 ist 8.' },
-    { front: 'die Differenz',  c: 'var(--blue)',   title: 'Ergebnis beim Subtrahieren',   ex: '10 − 7 = <u>3</u>',  text: 'Die <b>Differenz</b> von 10 und 7 ist 3.' },
-    { front: 'das Produkt',    c: 'var(--green)',  title: 'Ergebnis beim Multiplizieren', ex: '4 · 6 = <u>24</u>',  text: 'Das <b>Produkt</b> von 4 und 6 ist 24.' },
-    { front: 'der Quotient',   c: 'oklch(80% 0.12 330)', title: 'Ergebnis beim Dividieren', ex: '20 : 5 = <u>4</u>', text: 'Der <b>Quotient</b> von 20 und 5 ist 4.' },
+    { front: 'addieren',       c: 'var(--yellow)', title: '➕ plus rechnen',   ex: '4 + 3 = 7',  text: 'Man zählt zusammen: 4 plus 3 ist 7.' },
+    { front: 'subtrahieren',   c: 'var(--blue)',   title: '➖ minus rechnen',  ex: '9 − 4 = 5',  text: 'Man nimmt weg: 9 minus 4 ist 5.' },
+    { front: 'multiplizieren', c: 'var(--green)',  title: '✖️ mal rechnen',    ex: '3 · 5 = 15', text: 'Man nimmt eine Zahl mehrmals: 3 mal 5 ist 15.' },
+    { front: 'dividieren',     c: 'oklch(80% 0.12 330)', title: '➗ geteilt rechnen', ex: '12 : 3 = 4', text: 'Man teilt gerecht auf: 12 geteilt durch 3 ist 4.' },
+    { front: 'Teilen mit Rest', c: 'oklch(78% 0.14 50)', title: '🍬 Was übrig bleibt', ex: '14 : 4 = 3 R 2', text: '14 Bonbons für 4 Kinder: Jedes bekommt <b>3</b>, <b>2</b> bleiben übrig. Das ist der <b>Rest</b>. Probe: 3 · 4 + 2 = 14. Der Rest ist immer <b>kleiner</b> als die Zahl, durch die man teilt!' },
+    { front: '+', c: 'var(--yellow)',       title: 'plus', ex: 'addieren',       text: 'Das Zeichen + heißt <b>plus</b>. Man <b>addiert</b>.' },
+    { front: '−', c: 'var(--blue)',         title: 'minus', ex: 'subtrahieren',   text: 'Das Zeichen − heißt <b>minus</b>. Man <b>subtrahiert</b>.' },
+    { front: '·', c: 'var(--green)',        title: 'mal', ex: 'multiplizieren', text: 'Das Zeichen · heißt <b>mal</b>. Man <b>multipliziert</b>.' },
+    { front: ':', c: 'oklch(80% 0.12 330)', title: 'geteilt', ex: 'dividieren',     text: 'Das Zeichen : heißt <b>geteilt</b>. Man <b>dividiert</b>.' },
   ];
 
   // ---------- Helfer ----------
@@ -352,20 +349,19 @@
   }
 
   // ---------- Übersicht ----------
-  // Jede Zeile: [Zahl/Zeichen, Beschriftung darunter]
   const OVERVIEW = [
-    { c: 'var(--yellow)',       head: '➕ addieren',       sub: 'plus rechnen',    task: [[4, 'Summand'], ['+', ''], [3, 'Summand'], ['=', ''], [7, 'Summe']] },
-    { c: 'var(--blue)',         head: '➖ subtrahieren',   sub: 'minus rechnen',   task: [[9, 'Minuend'], ['−', ''], [4, 'Subtrahend'], ['=', ''], [5, 'Differenz']] },
-    { c: 'var(--green)',        head: '✖️ multiplizieren', sub: 'mal rechnen',     task: [[3, 'Faktor'], ['·', ''], [5, 'Faktor'], ['=', ''], [15, 'Produkt']] },
-    { c: 'oklch(80% 0.12 330)', head: '➗ dividieren',     sub: 'geteilt rechnen', task: [[12, 'Dividend'], [':', ''], [3, 'Divisor'], ['=', ''], [4, 'Quotient']] },
-    { c: 'oklch(78% 0.14 50)',  head: '🍬 Teilen mit Rest', sub: 'Der Rest ist immer kleiner als der Divisor.', task: [[14, 'Dividend'], [':', ''], [4, 'Divisor'], ['=', ''], [3, 'Quotient'], ['R', ''], [2, 'Rest']] },
-    { c: 'oklch(78% 0.14 50)',  head: '✅ Rest 0',          sub: 'Die Aufgabe geht auf.', task: [[12, 'Dividend'], [':', ''], [4, 'Divisor'], ['=', ''], [3, 'Quotient'], ['R', ''], [0, 'Rest']] },
+    { c: 'var(--yellow)',       head: '➕ addieren',       sub: 'plus rechnen – zusammenzählen',   ex: '4 + 3 = 7' },
+    { c: 'var(--blue)',         head: '➖ subtrahieren',   sub: 'minus rechnen – wegnehmen',       ex: '9 − 4 = 5' },
+    { c: 'var(--green)',        head: '✖️ multiplizieren', sub: 'mal rechnen – mehrmals nehmen',   ex: '3 · 5 = 15' },
+    { c: 'oklch(80% 0.12 330)', head: '➗ dividieren',     sub: 'geteilt rechnen – gerecht aufteilen', ex: '12 : 3 = 4' },
+    { c: 'oklch(78% 0.14 50)',  head: '🍬 Teilen mit Rest', sub: 'Der Rest ist immer kleiner als die Zahl, durch die man teilt.', ex: '14 : 4 = 3 R 2' },
+    { c: 'oklch(78% 0.14 50)',  head: '✅ Rest 0',          sub: 'Die Aufgabe geht auf.', ex: '12 : 4 = 3 R 0' },
   ];
   $('overviewGrid').innerHTML = OVERVIEW.map(o => `
     <div class="ov-card" style="--c:${o.c}">
       <div class="ov-head">${o.head}</div>
       <div class="ov-sub">${o.sub}</div>
-      <div class="ov-task">${o.task.map(([n, l]) => `<div><span class="ov-num">${n}</span><span class="ov-label">${l}</span></div>`).join('')}</div>
+      <div class="ov-num">${o.ex}</div>
     </div>`).join('');
 
   // ---------- Lernkarten ----------
@@ -402,33 +398,26 @@
                options: shuffle(OPS.map(o => o.verb)), right: op.verb,
                explain: `${op.sign} bedeutet ${op.verb}.` };
     },
-    // Verb -> Name des Ergebnisses
+    // Wort (plus, mal …) -> Verb
     () => {
       const op = pick(OPS);
-      return { q: `Wie heißt das Ergebnis beim <b>${op.verb[0].toUpperCase() + op.verb.slice(1)}</b>?`,
-               options: shuffle(OPS.map(o => o.result)), right: op.result,
-               explain: `Beim ${op.verb[0].toUpperCase() + op.verb.slice(1)} heißt das Ergebnis ${op.result}.` };
+      return { q: `„<b>${op.word}</b>" rechnen heißt …`,
+               options: shuffle(OPS.map(o => o.verb)), right: op.verb,
+               explain: `${op.word} = ${op.verb}` };
     },
-    // Ergebnis-Begriff -> ausrechnen
+    // Beschreibung -> Verb
+    () => {
+      const op = pick(OPS);
+      return { q: `${op.does}<br>Wie heißt diese Rechenart?`,
+               options: shuffle(OPS.map(o => o.verb)), right: op.verb,
+               explain: `${op.does} Das heißt ${op.verb}.` };
+    },
+    // Verb-Aufforderung -> ausrechnen
     () => {
       const op = pick(OPS), [a, b, r] = task(op);
-      const art = { Summe: 'die', Differenz: 'die', Produkt: 'das', Quotient: 'der' }[op.result];
-      return { q: `Wie groß ist ${art} <b>${op.result}</b> von ${a} und ${b}?`,
+      return { q: op.ask(a, b),
                options: numOptions(r), right: r,
                explain: `${a} ${op.sign} ${b} = ${r}` };
-    },
-    // Teile einer Aufgabe benennen
-    () => {
-      const op = pick(OPS), pos = rnd(0, 2);
-      let a, b, r;
-      do { [a, b, r] = task(op); } while (a === b || a === r || b === r); // sonst mehrdeutig (z. B. 10 − 5 = 5)
-      const names = [...op.parts, op.result];
-      const all = ['Summand', 'Minuend', 'Subtrahend', 'Faktor', 'Dividend', 'Divisor', 'Summe', 'Differenz', 'Produkt', 'Quotient'];
-      const wrong = shuffle(all.filter(n => n !== names[pos]));
-      const nums = [a, b, r];
-      return { q: `Wie heißt die <u>${nums[pos]}</u> in dieser Aufgabe?<span class="math">${a} ${op.sign} ${b} = ${r}</span>`,
-               options: shuffle([names[pos], ...wrong.slice(0, 3)]), right: names[pos],
-               explain: `${a} ${op.sign} ${b} = ${r}: ${names[0]} ${op.sign} ${names[1]} = ${names[2]}` };
     },
     // Teilen mit Rest: Rest finden
     () => {
