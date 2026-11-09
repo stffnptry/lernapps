@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grammatik-Grundlagen</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fffdf7;
+      --yellow: oklch(88% 0.16 88);
+      --blue: oklch(78% 0.14 240);
+      --blue-dark: oklch(55% 0.14 240);
+      --green: oklch(80% 0.14 155);
+      --green-dark: oklch(55% 0.14 155);
+      --coral: oklch(72% 0.16 35);
+      --coral-dark: oklch(55% 0.16 35);
+      --purple: oklch(72% 0.12 310);
+      --red: oklch(65% 0.18 25);
+      --text: #2d2a20;
+      --text-light: #6b6457;
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 12% 18%, oklch(88% 0.10 240 / 0.35) 0%, transparent 42%),
+        radial-gradient(circle at 88% 78%, oklch(90% 0.10 88 / 0.4) 0%, transparent 42%),
+        radial-gradient(circle at 50% 50%, oklch(92% 0.06 155 / 0.25) 0%, transparent 55%);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      gap: 12px;
+    }
+
+    .pill {
+      text-decoration: none;
+      color: var(--text-light);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1rem;
+      background: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 100px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .pill:hover { transform: translateY(-2px); }
+
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 16px 40px;
+      gap: 28px;
+      text-align: center;
+    }
+
+    h1 { font-size: clamp(2rem, 7vw, 3.2rem); font-weight: 900; letter-spacing: -0.5px; }
+    h1 span { color: var(--blue-dark); }
+    .intro-emoji { font-size: 64px; letter-spacing: 8px; }
+    .intro-text { font-size: 1.15rem; color: var(--text-light); font-weight: 700; max-width: 520px; line-height: 1.5; }
+
+    .modes { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+    .btn {
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 1.35rem;
+      padding: 18px 40px;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      color: white;
+      background: var(--blue-dark);
+      box-shadow: 0 6px 20px oklch(55% 0.14 240 / 0.4);
+      transition: transform 0.12s ease;
+    }
+    .btn.green { background: var(--green-dark); box-shadow: 0 6px 20px oklch(55% 0.14 155 / 0.4); }
+    .btn.coral { background: var(--coral-dark); box-shadow: 0 6px 20px oklch(55% 0.16 35 / 0.4); }
+    .btn.purple { background: oklch(48% 0.14 310); box-shadow: 0 6px 20px oklch(48% 0.14 310 / 0.4); }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: translateY(1px) scale(0.98); }
+
+    .hidden { display: none !important; }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      width: min(94vw, 720px);
+    }
+    .theme-card {
+      font-family: inherit;
+      text-align: left;
+      background: white;
+      border: none;
+      border-radius: 20px;
+      border-top: 10px solid var(--c, var(--blue));
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      padding: 22px 18px;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      color: inherit;
+    }
+    .theme-card:hover { transform: translateY(-3px); }
+    .theme-card h3 { font-size: 1.35rem; font-weight: 900; margin-bottom: 6px; }
+    .theme-card p { color: var(--text-light); font-weight: 700; font-size: 0.98rem; line-height: 1.4; }
+
+    /* Lernkarten */
+    .flashcard {
+      width: min(92vw, 560px);
+      height: min(62vh, 420px);
+      perspective: 1200px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font: inherit;
+      color: inherit;
+    }
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s ease;
+      transform-style: preserve-3d;
+    }
+    .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 50px rgba(0,0,0,0.10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 28px;
+      background: white;
+    }
+    .face.front { border-top: 14px solid var(--c, var(--blue)); }
+    .face.back { transform: rotateY(180deg); background: #fff; border-top: 14px solid var(--c, var(--blue)); }
+    .term { font-size: clamp(1.8rem, 8vw, 3.2rem); font-weight: 900; line-height: 1.15; }
+    .hint { color: var(--text-light); font-weight: 700; font-size: 1rem; }
+    .back-title { font-size: clamp(1.2rem, 4vw, 1.55rem); font-weight: 900; }
+    .example { font-size: clamp(1.35rem, 5vw, 2rem); font-weight: 900; line-height: 1.25; }
+    .explain { font-size: 1.1rem; font-weight: 700; color: var(--text-light); line-height: 1.5; max-width: 440px; }
+    .explain b { color: var(--text); }
+
+    .card-nav { display: flex; align-items: center; gap: 16px; }
+    .count { font-weight: 800; color: var(--text-light); min-width: 70px; }
+    .round { width: 60px; height: 60px; padding: 0; font-size: 1.6rem; }
+
+    /* Aufgaben */
+    .progress { width: min(92vw, 560px); height: 14px; background: white; border-radius: 100px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--green); width: 0; transition: width 0.3s ease; }
+    .question-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 50px rgba(0,0,0,0.10);
+      padding: 36px 28px;
+      width: min(92vw, 560px);
+    }
+    .question { font-size: clamp(1.25rem, 5vw, 1.85rem); font-weight: 900; line-height: 1.35; text-wrap: balance; }
+    .question .focus { display: block; margin-top: 14px; font-size: 1.2em; color: var(--blue-dark); }
+    .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: min(92vw, 560px); }
+    .answers.one-col { grid-template-columns: 1fr; }
+    .answer {
+      font-family: inherit;
+      font-weight: 900;
+      font-size: 1.25rem;
+      padding: 18px 12px;
+      border: 3px solid transparent;
+      border-radius: 20px;
+      background: white;
+      color: var(--text);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+    .answer:hover:not(:disabled) { transform: translateY(-2px); }
+    .answer.right { background: var(--green); border-color: var(--green-dark); }
+    .answer.wrong { background: oklch(88% 0.08 25); border-color: var(--red); }
+    .answer:disabled { cursor: default; }
+    .feedback { min-height: 2em; font-weight: 800; font-size: 1.1rem; max-width: 560px; line-height: 1.4; }
+    .feedback.ok { color: var(--green-dark); }
+    .feedback.no { color: var(--red); }
+
+    .score { font-size: clamp(3rem, 14vw, 6rem); font-weight: 900; color: var(--blue-dark); line-height: 1; }
+    .stars { font-size: 3rem; letter-spacing: 6px; }
+
+    @media (max-width: 420px) {
+      .answer { font-size: 1.05rem; padding: 14px 8px; }
+      .btn { font-size: 1.15rem; padding: 16px 28px; }
+      .answers { grid-template-columns: 1fr; }
+    }
+
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      85%  { opacity: 1; }
+      100% { transform: translateY(110vh) rotate(700deg); opacity: 0; }
+    }
+    @keyframes confettiWiggle {
+      0%,100% { margin-left: 0; }
+      25%     { margin-left: 12px; }
+      75%     { margin-left: -12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="pill" href="../index.html">← Alle Apps</a>
+  <button class="pill hidden" id="homeBtn" onclick="goHome()">🏠 Menü</button>
+</div>
+
+<main class="stage">
+
+  <!-- Intro -->
+  <section id="intro" class="stage">
+    <div class="intro-emoji">📘✏️🌟</div>
+    <h1>Grammatik-<span>Grundlagen</span></h1>
+    <p class="intro-text">Wortarten, Artikel, Verben und zusammengesetzte Wörter – für Klasse&nbsp;3. Erst mit Lernkarten üben, dann Aufgaben lösen!</p>
+    <div class="modes">
+      <button class="btn" onclick="startCards()">🃏 Lernkarten</button>
+      <button class="btn green" onclick="showThemes()">✏️ Aufgaben</button>
+    </div>
+  </section>
+
+  <!-- Aufgaben-Themen -->
+  <section id="themes" class="stage hidden">
+    <h1>Was möchtest du <span>üben</span>?</h1>
+    <p class="intro-text">Wähle ein Thema. Die Aufgaben werden gemischt.</p>
+    <div class="theme-grid">
+      <button class="theme-card" style="--c:var(--blue)" onclick="startTasks('konj')">
+        <h3>🔄 Konjugieren</h3>
+        <p>Verben beugen: ich, du, er/sie/es, wir, ihr, sie</p>
+      </button>
+      <button class="theme-card" style="--c:var(--green)" onclick="startTasks('plural')">
+        <h3>1️⃣➡️🔢 Einzahl &amp; Mehrzahl</h3>
+        <p>Regelmäßige und ein paar unregelmäßige Formen</p>
+      </button>
+      <button class="theme-card" style="--c:var(--coral)" onclick="startTasks('compound')">
+        <h3>🧩 Zusammengesetzte Wörter</h3>
+        <p>Bestimmungswort &amp; Grundwort finden oder Wörter bauen</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- Lernkarten -->
+  <section id="cards" class="stage hidden">
+    <button class="flashcard" id="flashcard" onclick="this.classList.toggle('flipped')" aria-label="Karte umdrehen">
+      <div class="flashcard-inner">
+        <div class="face front">
+          <div class="term" id="cardFront"></div>
+          <div class="hint">👆 Tippen zum Umdrehen</div>
+        </div>
+        <div class="face back">
+          <div class="back-title" id="cardTitle"></div>
+          <div class="example" id="cardExample"></div>
+          <div class="explain" id="cardExplain"></div>
+        </div>
+      </div>
+    </button>
+    <div class="card-nav">
+      <button class="btn round" onclick="moveCard(-1)" aria-label="Vorherige Karte">←</button>
+      <span class="count" id="cardCount"></span>
+      <button class="btn round" onclick="moveCard(1)" aria-label="Nächste Karte">→</button>
+    </div>
+    <button class="pill" onclick="shuffleCards()">🔀 Mischen</button>
+  </section>
+
+  <!-- Aufgaben -->
+  <section id="quiz" class="stage hidden">
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <span class="count" id="quizCount"></span>
+    <div class="question-card"><div class="question" id="question"></div></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <!-- Ergebnis -->
+  <section id="result" class="stage hidden">
+    <div class="stars" id="stars"></div>
+    <div class="score" id="score"></div>
+    <p class="intro-text" id="resultText"></p>
+    <div class="modes">
+      <button class="btn green" id="againBtn" onclick="restartTheme()">🔁 Nochmal</button>
+      <button class="btn" onclick="startCards()">🃏 Lernkarten</button>
+      <button class="btn coral" onclick="showThemes()">✏️ Anderes Thema</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ---------- Lernkarten ----------
+  const CARDS = [
+    {
+      front: 'Wortfamilie',
+      c: 'oklch(78% 0.14 50)',
+      title: 'Wörter mit demselben Stamm',
+      ex: 'fahren → Fahrer, Fahrrad, Abfahrt',
+      text: 'Eine <b>Wortfamilie</b> sind Wörter, die zusammengehören, weil sie denselben <b>Wortstamm</b> haben.'
+    },
+    {
+      front: 'Nomen / Substantiv',
+      c: 'var(--blue)',
+      title: 'Namen für Dinge und Lebewesen',
+      ex: 'Hund · Schule · Freude',
+      text: '<b>Nomen</b> (auch Substantive) nennen Personen, Tiere, Dinge oder Gefühle. Sie schreibt man <b>groß</b>.'
+    },
+    {
+      front: 'Artikel',
+      c: 'oklch(72% 0.12 280)',
+      title: 'Begleiter vor dem Nomen',
+      ex: 'der Ball · die Sonne · das Buch',
+      text: 'Der <b>Artikel</b> steht vor dem Nomen und zeigt: Maskulinum (der), Femininum (die) oder Neutrum (das).'
+    },
+    {
+      front: 'bestimmter Artikel',
+      c: 'oklch(70% 0.14 250)',
+      title: 'Genau dieses Ding',
+      ex: 'der · die · das',
+      text: 'Der <b>bestimmte Artikel</b> meint etwas Bestimmtes: <b>der</b> Hund, <b>die</b> Katze, <b>das</b> Haus.'
+    },
+    {
+      front: 'unbestimmter Artikel',
+      c: 'oklch(75% 0.12 220)',
+      title: 'Irgendein Ding',
+      ex: 'ein · eine · ein',
+      text: 'Der <b>unbestimmte Artikel</b> meint etwas Allgemeines: <b>ein</b> Hund, <b>eine</b> Katze, <b>ein</b> Haus.'
+    },
+    {
+      front: 'Bestimmungswort',
+      c: 'var(--coral)',
+      title: 'Das vordere Wort sagt „wie?“',
+      ex: 'Fußball → Fuß ist Bestimmungswort',
+      text: 'Im zusammengesetzten Wort steht das <b>Bestimmungswort</b> vorne. Es sagt genauer, was gemeint ist.'
+    },
+    {
+      front: 'Grundwort',
+      c: 'oklch(72% 0.14 20)',
+      title: 'Das hintere Wort sagt „was?“',
+      ex: 'Fußball → Ball ist Grundwort',
+      text: 'Das <b>Grundwort</b> steht hinten. Es sagt, <b>was</b> es ist – und bestimmt oft den Artikel: <b>der</b> Ball → <b>der</b> Fußball.'
+    },
+    {
+      front: 'Verben',
+      c: 'var(--green)',
+      title: 'Tun-Wörter / Tunwörter',
+      ex: 'laufen · schreiben · sein',
+      text: '<b>Verben</b> sagen, was jemand tut oder was geschieht. Man kann sie <b>konjugieren</b> (beugen).'
+    },
+    {
+      front: 'Grundform',
+      c: 'oklch(78% 0.12 160)',
+      title: 'Die Wörterbuch-Form',
+      ex: 'spielen · gehen · haben',
+      text: 'Die <b>Grundform</b> (Infinitiv) endet meist auf <b>-en</b> oder <b>-n</b>. So findest du das Verb im Wörterbuch.'
+    },
+    {
+      front: 'Wortstamm',
+      c: 'oklch(76% 0.12 140)',
+      title: 'Der feste Kern des Wortes',
+      ex: 'spiel-en → Stamm: spiel',
+      text: 'Der <b>Wortstamm</b> bleibt oft gleich. Daran hängst du Endungen: ich <b>spiel</b>e, du <b>spiel</b>st.'
+    },
+    {
+      front: 'Personalform',
+      c: 'oklch(74% 0.13 175)',
+      title: 'Die gebeugte Verbform',
+      ex: 'ich spiele · du spielst',
+      text: 'Die <b>Personalform</b> passt zum Personalpronomen. Endung und Person gehören zusammen.'
+    },
+    {
+      front: 'Personalpronomen',
+      c: 'oklch(70% 0.12 200)',
+      title: 'Ersatz für Namen',
+      ex: 'ich · du · er/sie/es · wir · ihr · sie',
+      text: '<b>Personalpronomen</b> stehen für Personen oder Dinge. Zu jedem gehört eine passende Verbform.'
+    },
+    {
+      front: 'Adjektive',
+      c: 'oklch(78% 0.14 85)',
+      title: 'Wie-Wörter',
+      ex: 'groß · leise · freundlich',
+      text: '<b>Adjektive</b> beschreiben, wie etwas ist. Frage: <b>Wie</b> ist der Hund? – Der Hund ist <b>flink</b>.'
+    },
+    {
+      front: 'Einzahl',
+      c: 'oklch(72% 0.12 310)',
+      title: 'Singular – nur eins',
+      ex: 'ein Ball · der Apfel',
+      text: 'Die <b>Einzahl</b> meint <b>eine</b> Person oder Sache. Man sagt auch: Singular.'
+    },
+    {
+      front: 'Mehrzahl',
+      c: 'oklch(68% 0.14 320)',
+      title: 'Plural – mehrere',
+      ex: 'viele Bälle · die Äpfel',
+      text: 'Die <b>Mehrzahl</b> meint <b>mehrere</b> Personen oder Sachen. Man sagt auch: Plural. Oft ändert sich die Endung.'
+    },
+  ];
+
+  // ---------- Aufgaben-Daten ----------
+  const PRONOUNS = ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie'];
+
+  const VERBS = [
+    { base: 'spielen', forms: { ich: 'spiele', du: 'spielst', 'er/sie/es': 'spielt', wir: 'spielen', ihr: 'spielt', sie: 'spielen' } },
+    { base: 'machen', forms: { ich: 'mache', du: 'machst', 'er/sie/es': 'macht', wir: 'machen', ihr: 'macht', sie: 'machen' } },
+    { base: 'hören', forms: { ich: 'höre', du: 'hörst', 'er/sie/es': 'hört', wir: 'hören', ihr: 'hört', sie: 'hören' } },
+    { base: 'lernen', forms: { ich: 'lerne', du: 'lernst', 'er/sie/es': 'lernt', wir: 'lernen', ihr: 'lernt', sie: 'lernen' } },
+    { base: 'malen', forms: { ich: 'male', du: 'malst', 'er/sie/es': 'malt', wir: 'malen', ihr: 'malt', sie: 'malen' } },
+    { base: 'gehen', forms: { ich: 'gehe', du: 'gehst', 'er/sie/es': 'geht', wir: 'gehen', ihr: 'geht', sie: 'gehen' } },
+    { base: 'kommen', forms: { ich: 'komme', du: 'kommst', 'er/sie/es': 'kommt', wir: 'kommen', ihr: 'kommt', sie: 'kommen' } },
+    { base: 'lesen', forms: { ich: 'lese', du: 'liest', 'er/sie/es': 'liest', wir: 'lesen', ihr: 'lest', sie: 'lesen' } },
+    { base: 'fahren', forms: { ich: 'fahre', du: 'fährst', 'er/sie/es': 'fährt', wir: 'fahren', ihr: 'fahrt', sie: 'fahren' } },
+    { base: 'haben', forms: { ich: 'habe', du: 'hast', 'er/sie/es': 'hat', wir: 'haben', ihr: 'habt', sie: 'haben' } },
+    { base: 'sein', forms: { ich: 'bin', du: 'bist', 'er/sie/es': 'ist', wir: 'sind', ihr: 'seid', sie: 'sind' } },
+  ];
+
+  const PLURALS = [
+    { sg: 'Hund', pl: 'Hunde', tip: 'Viele Wörter bekommen -e.' },
+    { sg: 'Ball', pl: 'Bälle', tip: 'Hier gibt es Umlaut + -e.' },
+    { sg: 'Katze', pl: 'Katzen', tip: 'Wörter auf -e bekommen oft -n.' },
+    { sg: 'Blume', pl: 'Blumen', tip: 'Wörter auf -e bekommen oft -n.' },
+    { sg: 'Schule', pl: 'Schulen', tip: 'Wörter auf -e bekommen oft -n.' },
+    { sg: 'Tisch', pl: 'Tische', tip: 'Viele Wörter bekommen -e.' },
+    { sg: 'Buch', pl: 'Bücher', tip: 'Manche Wörter bekommen Umlaut + -er.' },
+    { sg: 'Kind', pl: 'Kinder', tip: 'Manche Wörter bekommen -er.' },
+    { sg: 'Apfel', pl: 'Äpfel', tip: 'Manche Wörter ändern nur den Umlaut.' },
+    { sg: 'Mutter', pl: 'Mütter', tip: 'Manche Wörter ändern nur den Umlaut.' },
+    { sg: 'Auto', pl: 'Autos', tip: 'Manche Wörter bekommen -s.' },
+    { sg: 'Lehrer', pl: 'Lehrer', tip: 'Manche Wörter bleiben gleich.' },
+  ];
+
+  const COMPOUNDS = [
+    { word: 'Fußball', bestimmung: 'Fuß', grund: 'Ball', art: 'Nomen+Nomen' },
+    { word: 'Schulhof', bestimmung: 'Schul', grund: 'Hof', art: 'Nomen+Nomen' },
+    { word: 'Zahnbürste', bestimmung: 'Zahn', grund: 'Bürste', art: 'Nomen+Nomen' },
+    { word: 'Regenschirm', bestimmung: 'Regen', grund: 'Schirm', art: 'Nomen+Nomen' },
+    { word: 'Apfelbaum', bestimmung: 'Apfel', grund: 'Baum', art: 'Nomen+Nomen' },
+    { word: 'Schreibheft', bestimmung: 'Schreib', grund: 'Heft', art: 'Verb+Nomen' },
+    { word: 'Waschmaschine', bestimmung: 'Wasch', grund: 'Maschine', art: 'Verb+Nomen' },
+    { word: 'Laufschuh', bestimmung: 'Lauf', grund: 'Schuh', art: 'Verb+Nomen' },
+    { word: 'Trinkbecher', bestimmung: 'Trink', grund: 'Becher', art: 'Verb+Nomen' },
+    { word: 'Lesebuch', bestimmung: 'Lese', grund: 'Buch', art: 'Verb+Nomen' },
+    { word: 'Haustür', bestimmung: 'Haus', grund: 'Tür', art: 'Nomen+Nomen' },
+    { word: 'Spielplatz', bestimmung: 'Spiel', grund: 'Platz', art: 'Verb+Nomen' },
+  ];
+
+  // ---------- Helfer ----------
+  const $ = id => document.getElementById(id);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function show(id) {
+    ['intro', 'themes', 'cards', 'quiz', 'result'].forEach(s => $(s).classList.toggle('hidden', s !== id));
+    $('homeBtn').classList.toggle('hidden', id === 'intro');
+  }
+
+  function goHome() { show('intro'); }
+
+  // ---------- Lernkarten ----------
+  let deck = CARDS, cardIdx = 0;
+
+  function renderCard() {
+    const c = deck[cardIdx];
+    $('flashcard').classList.remove('flipped');
+    $('flashcard').style.setProperty('--c', c.c);
+    $('cardFront').textContent = c.front;
+    $('cardTitle').textContent = c.title;
+    $('cardExample').innerHTML = c.ex;
+    $('cardExplain').innerHTML = c.text;
+    $('cardCount').textContent = `${cardIdx + 1} / ${deck.length}`;
+  }
+  function startCards() { deck = [...CARDS]; cardIdx = 0; renderCard(); show('cards'); }
+  function moveCard(d) { cardIdx = (cardIdx + d + deck.length) % deck.length; renderCard(); }
+  function shuffleCards() { deck = shuffle(CARDS); cardIdx = 0; renderCard(); }
+
+  // ---------- Aufgaben ----------
+  function showThemes() { show('themes'); }
+
+  const ROUNDS = 10;
+  let qNum, correct, queue, currentTheme;
+
+  function startTasks(theme) {
+    currentTheme = theme;
+    qNum = 0;
+    correct = 0;
+    queue = buildQueue(theme);
+    show('quiz');
+    nextQuestion();
+  }
+
+  function restartTheme() {
+    if (currentTheme) startTasks(currentTheme);
+    else showThemes();
+  }
+
+  function buildQueue(theme) {
+    const items = [];
+    if (theme === 'konj') {
+      const pool = shuffle(VERBS);
+      while (items.length < ROUNDS) {
+        const verb = pool[items.length % pool.length];
+        const pron = pick(PRONOUNS);
+        const right = verb.forms[pron];
+        const distractors = shuffle(
+          [...new Set(Object.values(verb.forms).filter(f => f !== right))]
+        ).slice(0, 3);
+        // Extra distractors from other verbs if needed
+        while (distractors.length < 3) {
+          const other = pick(VERBS).forms[pick(PRONOUNS)];
+          if (other !== right && !distractors.includes(other)) distractors.push(other);
+        }
+        items.push({
+          q: `Wie lautet die Personalform?<span class="focus">${pron} ____ (${verb.base})</span>`,
+          options: shuffle([right, ...distractors.slice(0, 3)]),
+          right,
+          explain: `Zu <b>${pron}</b> gehört: <b>${pron} ${right}</b> (von ${verb.base}).`,
+        });
+      }
+    } else if (theme === 'plural') {
+      const pool = shuffle(PLURALS);
+      for (let i = 0; i < ROUNDS; i++) {
+        const item = pool[i % pool.length];
+        const toPlural = Math.random() < 0.55;
+        if (toPlural) {
+          const wrongs = shuffle(PLURALS.filter(p => p.pl !== item.pl).map(p => p.pl)).slice(0, 3);
+          items.push({
+            q: `Wie heißt die <b>Mehrzahl</b>?<span class="focus">1 × ${item.sg} → ?</span>`,
+            options: shuffle([item.pl, ...wrongs]),
+            right: item.pl,
+            explain: `Einzahl: <b>${item.sg}</b> → Mehrzahl: <b>${item.pl}</b>. ${item.tip}`,
+          });
+        } else {
+          const wrongs = shuffle(PLURALS.filter(p => p.sg !== item.sg).map(p => p.sg)).slice(0, 3);
+          items.push({
+            q: `Wie heißt die <b>Einzahl</b>?<span class="focus">viele ${item.pl} → 1 × ?</span>`,
+            options: shuffle([item.sg, ...wrongs]),
+            right: item.sg,
+            explain: `Mehrzahl: <b>${item.pl}</b> → Einzahl: <b>${item.sg}</b>. ${item.tip}`,
+          });
+        }
+      }
+    } else {
+      // compound
+      const pool = shuffle(COMPOUNDS);
+      for (let i = 0; i < ROUNDS; i++) {
+        const item = pool[i % pool.length];
+        const kind = i % 3;
+        if (kind === 0) {
+          const wrongs = shuffle(COMPOUNDS.filter(c => c.bestimmung !== item.bestimmung).map(c => c.bestimmung)).slice(0, 3);
+          items.push({
+            q: `Was ist das <b>Bestimmungswort</b>?<span class="focus">${item.word}</span>`,
+            options: shuffle([item.bestimmung, ...wrongs]),
+            right: item.bestimmung,
+            explain: `<b>${item.bestimmung}</b> + <b>${item.grund}</b> = ${item.word}. Das Bestimmungswort steht vorne.`,
+          });
+        } else if (kind === 1) {
+          const wrongs = shuffle(COMPOUNDS.filter(c => c.grund !== item.grund).map(c => c.grund)).slice(0, 3);
+          items.push({
+            q: `Was ist das <b>Grundwort</b>?<span class="focus">${item.word}</span>`,
+            options: shuffle([item.grund, ...wrongs]),
+            right: item.grund,
+            explain: `<b>${item.bestimmung}</b> + <b>${item.grund}</b> = ${item.word}. Das Grundwort steht hinten.`,
+          });
+        } else {
+          // build compound — join like real nouns: only the first letter is capital
+          const joinParts = (a, b) => a.charAt(0).toUpperCase() + (a.slice(1) + b).toLowerCase();
+          const decoys = shuffle(COMPOUNDS.filter(c => c.word !== item.word).map(c => {
+            return Math.random() < 0.5
+              ? joinParts(item.bestimmung, c.grund)
+              : joinParts(c.bestimmung, item.grund);
+          })).filter(w => w !== item.word);
+          const unique = [...new Set(decoys)].slice(0, 3);
+          while (unique.length < 3) {
+            const extra = pick(COMPOUNDS).word;
+            if (extra !== item.word && !unique.includes(extra)) unique.push(extra);
+          }
+          items.push({
+            q: `Welches Wort entsteht?<span class="focus">${item.bestimmung} + ${item.grund}</span>`,
+            options: shuffle([item.word, ...unique]),
+            right: item.word,
+            explain: `<b>${item.bestimmung}</b> + <b>${item.grund}</b> = <b>${item.word}</b> (${item.art}).`,
+          });
+        }
+      }
+    }
+    return shuffle(items).slice(0, ROUNDS);
+  }
+
+  function nextQuestion() {
+    if (qNum >= ROUNDS) return showResult();
+    current = queue[qNum];
+    $('feedback').textContent = '';
+    $('feedback').className = 'feedback';
+    $('progressBar').style.width = `${(qNum / ROUNDS) * 100}%`;
+    $('quizCount').textContent = `Aufgabe ${qNum + 1} von ${ROUNDS}`;
+    $('question').innerHTML = current.q;
+    $('answers').innerHTML = '';
+    $('answers').classList.toggle('one-col', current.options.some(o => String(o).length > 14));
+    current.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'answer';
+      btn.textContent = opt;
+      btn.onclick = () => answer(btn, opt);
+      $('answers').appendChild(btn);
+    });
+  }
+
+  let current;
+
+  function answer(btn, opt) {
+    const ok = opt === current.right;
+    [...$('answers').children].forEach(b => {
+      b.disabled = true;
+      if (b.textContent === String(current.right)) b.classList.add('right');
+    });
+    if (ok) {
+      correct++;
+      launchConfetti();
+      $('feedback').textContent = pick(['Super! 🎉', 'Richtig! ⭐', 'Klasse! 👏', 'Genau! 💪', 'Toll gemacht!']);
+      $('feedback').className = 'feedback ok';
+    } else {
+      btn.classList.add('wrong');
+      $('feedback').innerHTML = `Nicht ganz. ${current.explain}`;
+      $('feedback').className = 'feedback no';
+    }
+    qNum++;
+    setTimeout(nextQuestion, ok ? 1100 : 2800);
+  }
+
+  function showResult() {
+    $('progressBar').style.width = '100%';
+    const stars = correct >= 9 ? 3 : correct >= 6 ? 2 : correct >= 3 ? 1 : 0;
+    $('stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+    $('score').textContent = `${correct} / ${ROUNDS}`;
+    $('resultText').textContent = stars === 3 ? 'Wow, du bist ein Grammatik-Profi! 🏆'
+      : stars === 2 ? 'Sehr gut! Schau dir die Lernkarten noch einmal an und du wirst noch sicherer.'
+      : 'Kein Stress – übe mit den Lernkarten und versuch es gleich nochmal!';
+    show('result');
+    if (correct === ROUNDS) launchConfetti();
+  }
+
+  function launchConfetti() {
+    const colors = ['#e85d2f','#f5c842','#4a9e6e','#3b6dbf','#e040fb','#ff9800','#00bcd4','#e91e63'];
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
+    document.body.appendChild(container);
+    for (let i = 0; i < 80; i++) {
+      const p = document.createElement('div');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = 7 + Math.random() * 11, left = Math.random() * 100;
+      const delay = Math.random() * .7, dur = 1.5 + Math.random() * 1.4;
+      const isCircle = Math.random() > .4, wiggleDur = .4 + Math.random() * .4;
+      p.style.cssText = `position:absolute;top:-${size+10}px;left:${left}%;
+        width:${size}px;height:${isCircle ? size : size*(.4+Math.random()*.6)}px;
+        background:${color};border-radius:${isCircle?'50%':'2px'};
+        animation:confettiFall ${dur}s ${delay}s ease-in forwards,
+                  confettiWiggle ${wiggleDur}s ${delay}s ease-in-out infinite;`;
+      container.appendChild(p);
+    }
+    setTimeout(() => container.remove(), 3800);
+  }
+</script>
+</body>
+</html>
