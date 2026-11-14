@@ -15,6 +15,8 @@
       --blue-dark: oklch(55% 0.14 240);
       --green: oklch(80% 0.14 155);
       --green-dark: oklch(55% 0.14 155);
+      --orange: oklch(84% 0.12 70);
+      --orange-dark: oklch(62% 0.14 55);
       --text: #2d2a20;
       --text-light: #6b6457;
       --card-bg: #ffffff;
@@ -146,6 +148,11 @@
       border-color: var(--green-dark);
     }
 
+    .filter-btn[data-cat="Sachkunde"].active {
+      background: var(--orange);
+      border-color: var(--orange-dark);
+    }
+
     /* Cards grid */
     .grid {
       display: grid;
@@ -238,6 +245,16 @@
         rgba(255,255,255,0.25) 16px
       );
     }
+    .card[data-cat="Sachkunde"] .card-visual {
+      background-color: var(--orange);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(255,255,255,0.25) 8px,
+        rgba(255,255,255,0.25) 16px
+      );
+    }
 
     .card-body {
       padding: 22px 24px 24px;
@@ -274,6 +291,7 @@
     [data-cat="Mathe"] .badge { background: var(--yellow); color: oklch(40% 0.12 88); }
     [data-cat="Deutsch"] .badge { background: var(--blue); color: oklch(28% 0.10 240); }
     [data-cat="Musik"] .badge { background: var(--green); color: oklch(30% 0.10 160); }
+    [data-cat="Sachkunde"] .badge { background: var(--orange); color: oklch(35% 0.10 55); }
 
     .card-desc {
       font-size: 0.98rem;
@@ -435,6 +453,7 @@
     <button class="filter-btn" data-cat="Mathe" onclick="filterCards('Mathe', this)">🔢 Mathe</button>
     <button class="filter-btn" data-cat="Deutsch" onclick="filterCards('Deutsch', this)">✏️ Deutsch</button>
     <button class="filter-btn" data-cat="Musik" onclick="filterCards('Musik', this)">🎵 Musik</button>
+    <button class="filter-btn" data-cat="Sachkunde" onclick="filterCards('Sachkunde', this)">🌿 Sachkunde</button>
   </div>
 
   <!-- App Cards -->
@@ -608,6 +627,29 @@
         </div>
         <p class="card-desc">Intervalle, Be, Kreuz und Dreiklänge – lernen und üben am Klavier und im Notensystem.</p>
         <div class="card-cta">Jetzt üben <i class="card-arrow">→</i></div>
+      </div>
+    </a>
+
+    <a class="card" data-cat="Sachkunde" href="./wald-detektive/index.html">
+      <div class="card-visual">
+        <svg viewBox="0 0 200 140" aria-hidden="true">
+          <rect x="0" y="90" width="200" height="50" fill="oklch(72% 0.12 145)"/>
+          <circle cx="48" cy="78" r="28" fill="oklch(62% 0.14 145)"/>
+          <circle cx="72" cy="70" r="24" fill="oklch(58% 0.13 140)"/>
+          <rect x="56" y="88" width="10" height="28" fill="#6b4a2a"/>
+          <polygon points="130,110 150,40 170,110" fill="oklch(48% 0.12 145)"/>
+          <polygon points="148,95 162,50 176,95" fill="oklch(42% 0.11 150)"/>
+          <circle cx="100" cy="36" r="14" fill="oklch(88% 0.12 88)"/>
+          <text x="100" y="128" text-anchor="middle" font-size="18" font-weight="900" fill="#2d2a20">🕵️</text>
+        </svg>
+      </div>
+      <div class="card-body">
+        <span class="badge">🌿 Sachkunde</span>
+        <div class="card-top">
+          <h2 class="card-title">Wald-Detektive</h2>
+        </div>
+        <p class="card-desc">Bäume erkennen, Waldarten, Stockwerke und Laubfall – plus eine große Waldprüfung!</p>
+        <div class="card-cta">Jetzt entdecken <i class="card-arrow">→</i></div>
       </div>
     </a>
 

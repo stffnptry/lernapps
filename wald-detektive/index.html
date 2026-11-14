@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wald-Detektive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div class="topbar">
+      <a class="pill" id="btn-back-hub" href="../index.html">← Übersicht</a>
+      <div class="topbar-title" id="top-title">Wald-Detektive</div>
+      <button class="pill ghost" id="btn-home" type="button" hidden>🏠 Menü</button>
+    </div>
+
+    <!-- HOME -->
+    <section class="screen active" id="screen-home">
+      <div class="hero">
+        <span class="hero-emoji" aria-hidden="true">🕵️‍♂️🌲</span>
+        <h1>Wald-<span>Detektive</span></h1>
+        <p>Entdecke die Bäume, Tiere und Geheimnisse des Waldes!</p>
+      </div>
+      <div class="unit-grid" id="unit-grid">
+        <button class="unit-card" data-unit="baeume" data-accent="trees" type="button">
+          <span class="emoji">🌳</span>
+          <h2>Bäume erkennen</h2>
+          <p>Blätter, Nadeln und Früchte</p>
+        </button>
+        <button class="unit-card" data-unit="waldarten" data-accent="forest" type="button">
+          <span class="emoji">🌲</span>
+          <h2>Waldarten</h2>
+          <p>Laub-, Nadel- und Mischwald</p>
+        </button>
+        <button class="unit-card" data-unit="stockwerke" data-accent="layers" type="button">
+          <span class="emoji">🏢</span>
+          <h2>Stockwerke</h2>
+          <p>Pflanzen und Tiere zuordnen</p>
+        </button>
+        <button class="unit-card" data-unit="laubfall" data-accent="leaves" type="button">
+          <span class="emoji">🍂</span>
+          <h2>Laubfall</h2>
+          <p>Warum fallen die Blätter ab?</p>
+        </button>
+        <button class="unit-card wide" data-unit="pruefung" data-accent="exam" type="button">
+          <span class="emoji">🏅</span>
+          <h2>Die Waldprüfung</h2>
+          <p>Alle Themen durcheinander – zeig, was du kannst!</p>
+        </button>
+      </div>
+    </section>
+
+    <!-- UNIT HUB (Entdecken / Üben / Testen) -->
+    <section class="screen" id="screen-unit">
+      <div class="hero" style="padding-top:8px">
+        <span class="hero-emoji" id="unit-emoji">🌳</span>
+        <h1 id="unit-title">Einheit</h1>
+        <p id="unit-desc">Wähle, wie du lernen möchtest.</p>
+      </div>
+      <div class="mode-row">
+        <button class="btn" data-mode="entdecken" type="button">🔍 Entdecken</button>
+        <button class="btn gold" data-mode="ueben" type="button">✏️ Üben</button>
+        <button class="btn blue" data-mode="testen" type="button">✅ Testen</button>
+      </div>
+      <p class="section-sub" style="margin-top:8px">Zuerst entdecken, dann üben, danach testen – ganz ohne Zeitdruck.</p>
+    </section>
+
+    <!-- GENERIC PLAY AREA -->
+    <section class="screen" id="screen-play">
+      <div class="meta-row">
+        <span id="play-label">Übung</span>
+        <span id="play-count"></span>
+      </div>
+      <div class="progress"><span id="play-progress"></span></div>
+      <div id="play-area"></div>
+      <p class="feedback" id="play-feedback" aria-live="polite"></p>
+      <div class="mode-row" id="play-actions"></div>
+    </section>
+
+    <!-- RESULT -->
+    <section class="screen" id="screen-result">
+      <div class="panel result-card">
+        <div class="big" id="result-score">0 / 0</div>
+        <p id="result-text">Toll gemacht!</p>
+      </div>
+      <div class="mode-row">
+        <button class="btn" id="btn-retry-wrong" type="button" hidden>🔄 Fehler wiederholen</button>
+        <button class="btn secondary" id="btn-result-home" type="button">Zurück zur Einheit</button>
+        <button class="btn blue" id="btn-result-menu" type="button">🏠 Hauptmenü</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
