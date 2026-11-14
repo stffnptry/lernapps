@@ -199,6 +199,13 @@ body::before {
   background: var(--blue-lt); border-radius: 12px; padding: 10px 16px;
   font-weight: 800; font-size: 1rem; color: var(--blue); text-align: center;
 }
+.face .topic-tag {
+  position: absolute; top: 14px; left: 14px;
+  padding: 4px 12px; border-radius: 50px;
+  font-size: .72rem; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; color: #fff;
+  background: var(--card-accent, var(--blue));
+}
 .card-nav { display: flex; align-items: center; justify-content: center; gap: 16px; width: 100%; }
 .nav-round {
   width: 52px; height: 52px; border-radius: 50%; border: 3px solid #e0d8c8;
@@ -234,10 +241,9 @@ body::before {
 
   <p class="section-label">Lernen</p>
   <div class="topic-row">
-    <button class="topic-btn" data-learn="intervalle" onclick="startLearn('intervalle')">🃏 Intervalle</button>
-    <button class="topic-btn" data-learn="vorzeichen" onclick="startLearn('vorzeichen')">🃏 Vorzeichen</button>
-    <button class="topic-btn" data-learn="dreiklang" onclick="startLearn('dreiklang')">🃏 Dreiklang</button>
+    <button class="topic-btn" onclick="startLearn()">🃏 Lernkarten starten</button>
   </div>
+  <p class="intro" style="font-size:.88rem;margin-top:-6px">Intervalle · Vorzeichen · Dreiklang – jedes Mal neu gemischt</p>
 
   <p class="section-label">Üben</p>
   <div class="mode-grid">
@@ -371,6 +377,7 @@ const ACCIDENTALS = [
 ];
 
 const LEARN_INTERVALLE = INTERVALS.map((iv, i) => ({
+  topic: 'Intervalle',
   front: iv.name,
   backTitle: iv.name,
   explain: `Ein Intervall misst den <b>Abstand</b> zwischen zwei Tönen. Die <b>${iv.name}</b>: ${iv.tip}.`,
@@ -380,6 +387,7 @@ const LEARN_INTERVALLE = INTERVALS.map((iv, i) => ({
 }));
 
 const LEARN_VORZEICHEN = ACCIDENTALS.map(a => ({
+  topic: 'Vorzeichen',
   frontSymbol: a.symbol,
   front: a.name,
   backTitle: a.name + ' ' + a.symbol,
@@ -390,6 +398,7 @@ const LEARN_VORZEICHEN = ACCIDENTALS.map(a => ({
 
 const LEARN_DREIKLANG = [
   {
+    topic: 'Dreiklang',
     front: 'Dreiklang',
     backTitle: 'Was ist ein Dreiklang?',
     explain: 'Ein <b>Dreiklang</b> besteht aus <b>drei Tönen</b>, die in Terzen übereinander liegen – wie drei Stufen einer Leiter.',
@@ -398,6 +407,7 @@ const LEARN_DREIKLANG = [
     demo: 'CEG'
   },
   {
+    topic: 'Dreiklang',
     front: 'Grundton',
     backTitle: 'Der Grundton',
     explain: 'Der <b>Grundton</b> ist der tiefste Ton des Dreiklangs in Grundstellung. Von ihm aus bauen wir Terz und Quinte.',
@@ -407,6 +417,7 @@ const LEARN_DREIKLANG = [
     highlightRoot: true
   },
   {
+    topic: 'Dreiklang',
     front: 'Terz + Quinte',
     backTitle: 'So ist er gebaut',
     explain: 'Über dem Grundton: zuerst eine <b>Terz</b>, dann noch eine Terz (= Quinte vom Grundton). So entsteht der Dreiklang.',
@@ -415,6 +426,8 @@ const LEARN_DREIKLANG = [
     demo: 'CEG'
   },
 ];
+
+const ALL_LEARN_CARDS = [...LEARN_INTERVALLE, ...LEARN_VORZEICHEN, ...LEARN_DREIKLANG];
 
 // Common root-position triads on white keys (indices into WHITES)
 const TRIADS = [
@@ -461,18 +474,10 @@ function goHome() {
 // ══════════════════════════════════════════════
 // LEARN MODE
 // ══════════════════════════════════════════════
-function startLearn(topic) {
-  S.learnTopic = topic;
-  if (topic === 'intervalle') {
-    S.cards = LEARN_INTERVALLE;
-    $id('learn-topic-pill').textContent = 'Intervalle';
-  } else if (topic === 'vorzeichen') {
-    S.cards = LEARN_VORZEICHEN;
-    $id('learn-topic-pill').textContent = 'Vorzeichen';
-  } else {
-    S.cards = LEARN_DREIKLANG;
-    $id('learn-topic-pill').textContent = 'Dreiklang';
-  }
+function startLearn() {
+  S.learnTopic = 'all';
+  S.cards = shuffle(ALL_LEARN_CARDS);
+  $id('learn-topic-pill').textContent = 'Lernkarten';
   S.cardIdx = 0;
   showScreen('screen-learn');
   renderCard();
@@ -486,18 +491,22 @@ function renderCard() {
 
   const front = $id('card-front');
   const back = $id('card-back');
+  const topicTag = card.topic
+    ? `<span class="topic-tag">${card.topic}</span>`
+    : '';
 
-  let frontHtml = '';
+  let frontHtml = topicTag;
   if (card.frontSymbol) {
-    frontHtml = `<div class="symbol-huge">${card.frontSymbol}</div><div class="term" style="font-size:1.6rem">${card.front}</div>`;
+    frontHtml += `<div class="symbol-huge">${card.frontSymbol}</div><div class="term" style="font-size:1.6rem">${card.front}</div>`;
   } else {
-    frontHtml = `<div class="term">${card.front}</div>`;
+    frontHtml += `<div class="term">${card.front}</div>`;
   }
   frontHtml += `<div class="hint">👆 Tippen zum Umdrehen</div>`;
   front.innerHTML = frontHtml;
   front.style.setProperty('--card-accent', card.accent || '#3b6dbf');
 
-  let backHtml = `<div class="term" style="font-size:clamp(1.4rem,6vw,2rem)">${card.backTitle}</div>`;
+  let backHtml = topicTag;
+  backHtml += `<div class="term" style="font-size:clamp(1.4rem,6vw,2rem)">${card.backTitle}</div>`;
   backHtml += `<div class="explain">${card.explain}</div>`;
   if (card.example) backHtml += `<div class="example-box">${card.example}</div>`;
 
