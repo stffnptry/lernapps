@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Intervalle &amp; Vorzeichen</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&amp;family=Nunito+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #fdf8f0;
+  --card: #ffffff;
+  --ink: #2d2417;
+  --muted: #8a7a5a;
+  --yellow: #f5c842;
+  --yellow-dk: #c49a0a;
+  --green: #4a9e6e;
+  --green-lt: #e8f5ee;
+  --red: #e85d2f;
+  --red-lt: #fdeee9;
+  --blue: #3b6dbf;
+  --blue-lt: #e8eef8;
+  --purple: #7c4dba;
+  --purple-lt: #f0eaf8;
+  --r: 16px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.10);
+}
+
+html, body { width: 100%; min-height: 100%; background: var(--bg); font-family: 'Nunito', sans-serif; color: var(--ink); }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%, rgba(245,200,66,.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 85% 85%, rgba(74,158,110,.14) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+.screen { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px 16px 48px; }
+.screen.hidden { display: none; }
+
+#screen-start { gap: 16px; max-width: 600px; margin: 0 auto; padding-top: clamp(20px, 5vh, 48px); width: 100%; }
+
+.app-title {
+  background: var(--yellow); color: var(--ink);
+  font-size: clamp(1.35rem, 5.5vw, 2.1rem); font-weight: 900;
+  padding: 10px 24px; border-radius: 50px;
+  letter-spacing: .03em; box-shadow: 4px 4px 0 var(--yellow-dk);
+  text-align: center;
+}
+
+.intro {
+  font-size: 1rem; font-weight: 700; color: var(--muted);
+  text-align: center; line-height: 1.5; max-width: 480px;
+}
+
+.section-label {
+  font-size: .78rem; font-weight: 800; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted);
+  align-self: flex-start; width: 100%; padding-left: 2px; margin-top: 6px;
+}
+
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.mode-btn {
+  padding: 14px 10px; border: 3px solid #e0d8c8; border-radius: var(--r);
+  background: var(--card); font-family: 'Nunito', sans-serif;
+  font-size: .88rem; font-weight: 800; color: var(--ink);
+  cursor: pointer; transition: all .18s; text-align: center; line-height: 1.35;
+}
+.mode-btn:hover { border-color: var(--green); background: var(--green-lt); }
+.mode-btn.active { border-color: var(--green); background: var(--green); color: #fff; box-shadow: 3px 3px 0 #2d7a50; }
+.mode-btn .emoji { display: block; font-size: 1.5rem; margin-bottom: 4px; }
+
+.topic-row { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
+.topic-btn {
+  flex: 1; min-width: 140px; padding: 12px 10px; border: 3px solid #e0d8c8; border-radius: var(--r);
+  background: var(--card); font-family: 'Nunito', sans-serif;
+  font-size: .9rem; font-weight: 800; color: var(--ink);
+  cursor: pointer; transition: all .18s; text-align: center;
+}
+.topic-btn:hover { border-color: var(--blue); background: var(--blue-lt); }
+.topic-btn.active { border-color: var(--blue); background: var(--blue); color: #fff; box-shadow: 3px 3px 0 rgba(59,109,191,.4); }
+
+.start-btn {
+  padding: 16px 48px; background: var(--green); color: #fff; border: none;
+  border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: 900;
+  cursor: pointer; box-shadow: 4px 4px 0 #2d7a50; transition: all .15s; letter-spacing: .02em;
+  margin-top: 8px;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 #2d7a50; }
+.start-btn:active { transform: translateY(1px); box-shadow: 2px 2px 0 #2d7a50; }
+.start-btn:disabled { background: #c0b8a8; box-shadow: 3px 3px 0 #a8a090; cursor: not-allowed; transform: none; }
+
+.hub-link {
+  font-size: .85rem; font-weight: 700; color: var(--muted);
+  text-decoration: none; margin-top: 4px;
+}
+.hub-link:hover { color: var(--ink); }
+
+/* Learn + exercise shared */
+#screen-learn, #screen-exercise { gap: 14px; max-width: 600px; margin: 0 auto; padding-top: clamp(14px, 3vh, 32px); width: 100%; }
+
+.ex-header { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
+.back-btn {
+  padding: 8px 16px; background: transparent; border: 2px solid #e0d8c8; border-radius: 50px;
+  font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.back-btn:hover { border-color: var(--ink); color: var(--ink); }
+.score-pill {
+  background: var(--card); border: 2px solid #e0d8c8; border-radius: 50px;
+  padding: 6px 16px; font-size: .88rem; font-weight: 800; white-space: nowrap;
+}
+.score-pill .ok { color: var(--green); }
+
+.mode-label {
+  font-size: .75rem; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); text-align: center; width: 100%;
+}
+
+.q-card {
+  width: 100%; background: var(--card); border: 2px solid #e0d8c8; border-radius: 20px;
+  padding: 18px 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.q-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: center; }
+
+.staff-wrap { width: 100%; max-width: 480px; }
+.staff-wrap svg { width: 100%; height: auto; display: block; }
+.piano-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.piano-wrap svg { display: block; margin: 0 auto; }
+
+.a-area { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.a-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); align-self: flex-start; }
+
+.choice-grid { display: grid; gap: 10px; width: 100%; }
+.choice-grid.c2 { grid-template-columns: repeat(2, 1fr); }
+.choice-grid.c3 { grid-template-columns: repeat(3, 1fr); }
+.choice-grid.c4 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 480px) {
+  .choice-grid.c4 { grid-template-columns: repeat(4, 1fr); }
+}
+.choice-btn {
+  padding: 14px 8px; background: var(--card); border: 3px solid #e0d8c8; border-radius: var(--r);
+  font-family: 'Nunito', sans-serif; font-size: clamp(.95rem, 3.5vw, 1.15rem); font-weight: 900;
+  color: var(--ink); cursor: pointer; transition: all .15s; text-align: center;
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-lt); transform: translateY(-2px); }
+.choice-btn.correct { background: var(--green-lt) !important; border-color: var(--green) !important; color: var(--green) !important; }
+.choice-btn.wrong { background: var(--red-lt) !important; border-color: var(--red) !important; color: var(--red) !important; }
+.choice-btn:disabled { cursor: not-allowed; }
+.choice-btn.big-symbol { font-size: clamp(2rem, 8vw, 2.8rem); padding: 18px 8px; }
+
+.feedback {
+  width: 100%; padding: 12px 18px; border-radius: var(--r);
+  font-size: 1.05rem; font-weight: 800; text-align: center; transition: all .25s;
+}
+.feedback.ok { background: var(--green-lt); color: var(--green); border: 2px solid var(--green); }
+.feedback.err { background: var(--red-lt); color: var(--red); border: 2px solid var(--red); }
+.feedback.hidden { display: none; }
+
+.next-btn {
+  padding: 13px 40px; background: var(--blue); color: #fff; border: none;
+  border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 900;
+  cursor: pointer; box-shadow: 3px 3px 0 rgba(59,109,191,.4); transition: all .15s;
+}
+.next-btn:hover { transform: translateY(-2px); }
+.next-btn.hidden { display: none; }
+
+/* Flashcards */
+.flashcard {
+  width: 100%; min-height: 320px; perspective: 1200px; cursor: pointer;
+  border: none; background: none; font: inherit; color: inherit;
+}
+.flashcard-inner {
+  position: relative; width: 100%; min-height: 320px;
+  transition: transform .5s ease; transform-style: preserve-3d;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  border-radius: 20px; box-shadow: var(--shadow); border: 2px solid #e0d8c8;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 24px 18px; background: var(--card);
+}
+.face.front { border-top: 10px solid var(--card-accent, var(--blue)); }
+.face.back {
+  transform: rotateY(180deg);
+  border-top: 10px solid var(--card-accent, var(--blue));
+}
+.face .term { font-size: clamp(2rem, 9vw, 3.2rem); font-weight: 900; line-height: 1.1; text-align: center; }
+.face .symbol-huge { font-size: clamp(3.5rem, 16vw, 5.5rem); line-height: 1; font-family: serif; }
+.face .hint { color: var(--muted); font-weight: 700; font-size: .95rem; }
+.face .explain { font-size: 1.05rem; font-weight: 700; color: var(--muted); line-height: 1.5; max-width: 420px; text-align: center; }
+.face .explain b { color: var(--ink); }
+.face .example-box {
+  background: var(--blue-lt); border-radius: 12px; padding: 10px 16px;
+  font-weight: 800; font-size: 1rem; color: var(--blue); text-align: center;
+}
+.card-nav { display: flex; align-items: center; justify-content: center; gap: 16px; width: 100%; }
+.nav-round {
+  width: 52px; height: 52px; border-radius: 50%; border: 3px solid #e0d8c8;
+  background: var(--card); font-size: 1.4rem; font-weight: 900; cursor: pointer;
+  font-family: 'Nunito', sans-serif; color: var(--ink); transition: all .15s;
+}
+.nav-round:hover { border-color: var(--blue); background: var(--blue-lt); }
+.nav-round:disabled { opacity: .4; cursor: not-allowed; }
+.card-count { font-weight: 800; color: var(--muted); min-width: 64px; text-align: center; }
+
+/* Summary */
+#screen-summary { justify-content: center; gap: 0; }
+.summary-card {
+  background: var(--card); border: 2px solid #e0d8c8; border-radius: 24px;
+  padding: 40px 32px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  max-width: 400px; width: 100%; text-align: center;
+}
+.summary-emoji { font-size: 4rem; line-height: 1; }
+.summary-title { font-size: 1.6rem; font-weight: 900; }
+.summary-score { font-size: 1.05rem; font-weight: 700; color: var(--muted); }
+.summary-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+.mini-staff { width: 100%; max-width: 280px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ START ═══════════════ -->
+<div id="screen-start" class="screen">
+  <h1 class="app-title">🎵 Intervalle &amp; Vorzeichen</h1>
+  <p class="intro">Lerne Intervalle, Vorzeichen und Dreiklänge – mit Notensystem und Klavier!</p>
+
+  <p class="section-label">Lernen</p>
+  <div class="topic-row">
+    <button class="topic-btn" data-learn="intervalle" onclick="startLearn('intervalle')">🃏 Intervalle</button>
+    <button class="topic-btn" data-learn="vorzeichen" onclick="startLearn('vorzeichen')">🃏 Vorzeichen</button>
+    <button class="topic-btn" data-learn="dreiklang" onclick="startLearn('dreiklang')">🃏 Dreiklang</button>
+  </div>
+
+  <p class="section-label">Üben</p>
+  <div class="mode-grid">
+    <button class="mode-btn" data-mode="piano-interval" onclick="selectMode(this)">
+      <span class="emoji">🎹</span>Intervall am<br>Klavier
+    </button>
+    <button class="mode-btn" data-mode="staff-interval" onclick="selectMode(this)">
+      <span class="emoji">🎼</span>Intervall im<br>Notensystem
+    </button>
+    <button class="mode-btn" data-mode="accidentals" onclick="selectMode(this)">
+      <span class="emoji">♯♭</span>Vorzeichen<br>benennen
+    </button>
+    <button class="mode-btn" data-mode="grundton" onclick="selectMode(this)">
+      <span class="emoji">🔺</span>Grundton im<br>Dreiklang
+    </button>
+  </div>
+
+  <button class="start-btn" id="btn-start" onclick="startPractice()" disabled>Übung starten</button>
+  <a class="hub-link" href="../index.html">← Zurück zu allen Apps</a>
+</div>
+
+<!-- ═══════════════ LEARN ═══════════════ -->
+<div id="screen-learn" class="screen hidden">
+  <div class="ex-header">
+    <button class="back-btn" onclick="goHome()">← Zurück</button>
+    <div class="score-pill" id="learn-topic-pill">Lernen</div>
+  </div>
+  <button class="flashcard" id="flashcard" onclick="this.classList.toggle('flipped')" aria-label="Karte umdrehen">
+    <div class="flashcard-inner">
+      <div class="face front" id="card-front"></div>
+      <div class="face back" id="card-back"></div>
+    </div>
+  </button>
+  <div class="card-nav">
+    <button class="nav-round" id="card-prev" onclick="prevCard()" aria-label="Vorherige">←</button>
+    <span class="card-count" id="card-count">1 / 1</span>
+    <button class="nav-round" id="card-next" onclick="nextCard()" aria-label="Nächste">→</button>
+  </div>
+</div>
+
+<!-- ═══════════════ EXERCISE ═══════════════ -->
+<div id="screen-exercise" class="screen hidden">
+  <div class="ex-header">
+    <button class="back-btn" onclick="goHome()">← Zurück</button>
+    <div class="score-pill"><span class="ok" id="sc-ok">0</span> / <span id="sc-total">0</span></div>
+  </div>
+  <p class="mode-label" id="mode-label"></p>
+  <div class="q-card" id="q-card"></div>
+  <div class="a-area" id="a-area"></div>
+  <div class="feedback hidden" id="feedback"></div>
+  <button class="next-btn hidden" id="btn-next" onclick="nextQuestion()">Weiter →</button>
+</div>
+
+<!-- ═══════════════ SUMMARY ═══════════════ -->
+<div id="screen-summary" class="screen hidden">
+  <div class="summary-card">
+    <div class="summary-emoji" id="summary-emoji"></div>
+    <h2 class="summary-title" id="summary-title"></h2>
+    <p class="summary-score" id="summary-score"></p>
+    <div class="summary-actions">
+      <button class="start-btn" onclick="startPractice()">Nochmal</button>
+      <button class="back-btn" style="padding:16px 24px;font-size:1rem" onclick="goHome()">← Zur Auswahl</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// CONSTANTS & DATA
+// ══════════════════════════════════════════════
+const ROUND_SIZE = 10;
+const LINE_YS = [30, 40, 50, 60, 70];
+const NR = 7;
+const WKW = 38;
+const WKH = 88;
+const BKW = 24;
+const BKH = 54;
+
+// White keys C4–E5 (treble-friendly) with staff y (treble: E4=70 … F5=30)
+const WHITES = [
+  { k:'C4', n:'C', y:80, ledger:[80] },
+  { k:'D4', n:'D', y:75, ledger:[] },
+  { k:'E4', n:'E', y:70, ledger:[] },
+  { k:'F4', n:'F', y:65, ledger:[] },
+  { k:'G4', n:'G', y:60, ledger:[] },
+  { k:'A4', n:'A', y:55, ledger:[] },
+  { k:'H4', n:'H', y:50, ledger:[] },
+  { k:'C5', n:'C', y:45, ledger:[] },
+  { k:'D5', n:'D', y:40, ledger:[] },
+  { k:'E5', n:'E', y:35, ledger:[] },
+];
+
+const BLACKS = [
+  { i:0, k:'Cis4' }, { i:1, k:'Dis4' },
+  { i:3, k:'Fis4' }, { i:4, k:'Gis4' }, { i:5, k:'Ais4' },
+  { i:7, k:'Cis5' }, { i:8, k:'Dis5' },
+];
+
+const INTERVALS = [
+  { name:'Prime',   steps:0,  tip:'Gleiche Note – Abstand 0' },
+  { name:'Sekunde', steps:1,  tip:'Nachbarnote, z. B. C → D' },
+  { name:'Terz',    steps:2,  tip:'Zwei Schritte, z. B. C → E' },
+  { name:'Quarte',  steps:3,  tip:'Drei Schritte, z. B. C → F' },
+  { name:'Quinte',  steps:4,  tip:'Vier Schritte, z. B. C → G' },
+  { name:'Sexte',   steps:5,  tip:'Fünf Schritte, z. B. C → A' },
+  { name:'Septime', steps:6,  tip:'Sechs Schritte, z. B. C → H' },
+  { name:'Oktave',  steps:7,  tip:'Sieben Schritte, z. B. C → c' },
+  { name:'None',    steps:8,  tip:'Oktave + Sekunde, z. B. C → d' },
+  { name:'Dezime',  steps:9,  tip:'Oktave + Terz, z. B. C → e' },
+];
+
+const ACCIDENTALS = [
+  {
+    id:'be', symbol:'♭', name:'Be',
+    explain:'Das <b>Be</b> (♭) macht eine Note einen Halbton <b>tiefer</b>. Aus H wird B, aus E wird Es.',
+    example:'H → B (eins tiefer)',
+    accent:'#3b6dbf'
+  },
+  {
+    id:'kreuz', symbol:'♯', name:'Kreuz',
+    explain:'Das <b>Kreuz</b> (♯) macht eine Note einen Halbton <b>höher</b>. Aus F wird Fis, aus C wird Cis.',
+    example:'F → Fis (eins höher)',
+    accent:'#7c4dba'
+  },
+  {
+    id:'aufloesung', symbol:'♮', name:'Auflösungszeichen',
+    explain:'Das <b>Auflösungszeichen</b> (♮) hebt Be oder Kreuz wieder auf. Die Note wird wieder „normal“.',
+    example:'Fis + ♮ → wieder F',
+    accent:'#4a9e6e'
+  },
+];
+
+const LEARN_INTERVALLE = INTERVALS.map((iv, i) => ({
+  front: iv.name,
+  backTitle: iv.name,
+  explain: `Ein Intervall misst den <b>Abstand</b> zwischen zwei Tönen. Die <b>${iv.name}</b>: ${iv.tip}.`,
+  example: iv.tip,
+  accent: ['#3b6dbf','#4a9e6e','#7c4dba','#c49a0a','#e85d2f'][i % 5],
+  steps: iv.steps,
+}));
+
+const LEARN_VORZEICHEN = ACCIDENTALS.map(a => ({
+  frontSymbol: a.symbol,
+  front: a.name,
+  backTitle: a.name + ' ' + a.symbol,
+  explain: a.explain,
+  example: a.example,
+  accent: a.accent,
+}));
+
+const LEARN_DREIKLANG = [
+  {
+    front: 'Dreiklang',
+    backTitle: 'Was ist ein Dreiklang?',
+    explain: 'Ein <b>Dreiklang</b> besteht aus <b>drei Tönen</b>, die in Terzen übereinander liegen – wie drei Stufen einer Leiter.',
+    example: 'C – E – G (C-Dur)',
+    accent: '#3b6dbf',
+    demo: 'CEG'
+  },
+  {
+    front: 'Grundton',
+    backTitle: 'Der Grundton',
+    explain: 'Der <b>Grundton</b> ist der tiefste Ton des Dreiklangs in Grundstellung. Von ihm aus bauen wir Terz und Quinte.',
+    example: 'In C–E–G ist C der Grundton',
+    accent: '#4a9e6e',
+    demo: 'CEG',
+    highlightRoot: true
+  },
+  {
+    front: 'Terz + Quinte',
+    backTitle: 'So ist er gebaut',
+    explain: 'Über dem Grundton: zuerst eine <b>Terz</b>, dann noch eine Terz (= Quinte vom Grundton). So entsteht der Dreiklang.',
+    example: 'Grundton → Terz → Quinte',
+    accent: '#7c4dba',
+    demo: 'CEG'
+  },
+];
+
+// Common root-position triads on white keys (indices into WHITES)
+const TRIADS = [
+  { root:0, mid:2, top:4, label:'C–E–G' },   // C E G
+  { root:1, mid:3, top:5, label:'D–F–A' },   // D F A
+  { root:2, mid:4, top:6, label:'E–G–H' },   // E G H
+  { root:3, mid:5, top:7, label:'F–A–C' },   // F A C
+  { root:4, mid:6, top:8, label:'G–H–D' },   // G H D
+  { root:5, mid:7, top:9, label:'A–C–E' },   // A C E
+];
+
+// ── STATE ──
+let S = {
+  mode: null,
+  learnTopic: null,
+  cardIdx: 0,
+  cards: [],
+  answered: false,
+  ok: 0,
+  total: 0,
+  current: null,
+};
+
+function $id(id) { return document.getElementById(id); }
+function shuffle(a) {
+  const arr = [...a];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  $id(id).classList.remove('hidden');
+}
+function goHome() {
+  S.mode = null;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  $id('btn-start').disabled = true;
+  showScreen('screen-start');
+}
+
+// ══════════════════════════════════════════════
+// LEARN MODE
+// ══════════════════════════════════════════════
+function startLearn(topic) {
+  S.learnTopic = topic;
+  if (topic === 'intervalle') {
+    S.cards = LEARN_INTERVALLE;
+    $id('learn-topic-pill').textContent = 'Intervalle';
+  } else if (topic === 'vorzeichen') {
+    S.cards = LEARN_VORZEICHEN;
+    $id('learn-topic-pill').textContent = 'Vorzeichen';
+  } else {
+    S.cards = LEARN_DREIKLANG;
+    $id('learn-topic-pill').textContent = 'Dreiklang';
+  }
+  S.cardIdx = 0;
+  showScreen('screen-learn');
+  renderCard();
+}
+
+function renderCard() {
+  const card = S.cards[S.cardIdx];
+  const fc = $id('flashcard');
+  fc.classList.remove('flipped');
+  fc.style.setProperty('--card-accent', card.accent || '#3b6dbf');
+
+  const front = $id('card-front');
+  const back = $id('card-back');
+
+  let frontHtml = '';
+  if (card.frontSymbol) {
+    frontHtml = `<div class="symbol-huge">${card.frontSymbol}</div><div class="term" style="font-size:1.6rem">${card.front}</div>`;
+  } else {
+    frontHtml = `<div class="term">${card.front}</div>`;
+  }
+  frontHtml += `<div class="hint">👆 Tippen zum Umdrehen</div>`;
+  front.innerHTML = frontHtml;
+  front.style.setProperty('--card-accent', card.accent || '#3b6dbf');
+
+  let backHtml = `<div class="term" style="font-size:clamp(1.4rem,6vw,2rem)">${card.backTitle}</div>`;
+  backHtml += `<div class="explain">${card.explain}</div>`;
+  if (card.example) backHtml += `<div class="example-box">${card.example}</div>`;
+
+  // Visual demo for intervals / triad
+  if (card.steps != null) {
+    const lo = 0;
+    const hi = Math.min(lo + card.steps, WHITES.length - 1);
+    backHtml += `<div class="mini-staff">${staffNotesSVG([WHITES[lo], WHITES[hi]])}</div>`;
+    backHtml += `<div class="piano-wrap" style="margin-top:8px">${pianoSVG([WHITES[lo].k, WHITES[hi].k], false)}</div>`;
+  } else if (card.demo === 'CEG') {
+    const notes = [WHITES[0], WHITES[2], WHITES[4]];
+    const keys = card.highlightRoot ? [WHITES[0].k] : notes.map(n => n.k);
+    const allKeys = notes.map(n => n.k);
+    backHtml += `<div class="mini-staff">${staffNotesSVG(notes, card.highlightRoot ? 0 : -1)}</div>`;
+    backHtml += `<div class="piano-wrap" style="margin-top:8px">${pianoSVG(allKeys, false, null, card.highlightRoot ? WHITES[0].k : null)}</div>`;
+  }
+
+  back.innerHTML = backHtml;
+  back.style.setProperty('--card-accent', card.accent || '#3b6dbf');
+
+  $id('card-count').textContent = `${S.cardIdx + 1} / ${S.cards.length}`;
+  $id('card-prev').disabled = S.cardIdx === 0;
+  $id('card-next').disabled = S.cardIdx >= S.cards.length - 1;
+}
+
+function prevCard() {
+  if (S.cardIdx <= 0) return;
+  S.cardIdx--;
+  renderCard();
+}
+function nextCard() {
+  if (S.cardIdx >= S.cards.length - 1) return;
+  S.cardIdx++;
+  renderCard();
+}
+
+// ══════════════════════════════════════════════
+// PRACTICE SETUP
+// ══════════════════════════════════════════════
+function selectMode(btn) {
+  S.mode = btn.dataset.mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  $id('btn-start').disabled = false;
+}
+
+function startPractice() {
+  if (!S.mode) return;
+  S.ok = 0; S.total = 0; S.answered = false;
+  updateScore();
+  const labels = {
+    'piano-interval': '🎹 Intervall am Klavier',
+    'staff-interval': '🎼 Intervall im Notensystem',
+    'accidentals': '♯♭ Vorzeichen benennen',
+    'grundton': '🔺 Grundton im Dreiklang',
+  };
+  $id('mode-label').textContent = labels[S.mode];
+  showScreen('screen-exercise');
+  nextQuestion();
+}
+
+function updateScore() {
+  $id('sc-ok').textContent = S.ok;
+  $id('sc-total').textContent = ROUND_SIZE;
+}
+
+function showSummary() {
+  const pct = S.total > 0 ? Math.round(S.ok / S.total * 100) : 0;
+  const emoji = pct === 100 ? '🏆' : pct >= 80 ? '⭐' : pct >= 60 ? '👍' : '💪';
+  const msg = pct === 100 ? 'Perfekt! Alles richtig!' : pct >= 80 ? 'Super gemacht!' : pct >= 60 ? 'Gut! Weiter üben!' : 'Nicht aufgeben!';
+  $id('summary-emoji').textContent = emoji;
+  $id('summary-title').textContent = msg;
+  $id('summary-score').textContent = `${S.ok} von ${S.total} Fragen richtig (${pct} %)`;
+  showScreen('screen-summary');
+}
+
+// ══════════════════════════════════════════════
+// QUESTION GENERATION
+// ══════════════════════════════════════════════
+function nextQuestion() {
+  if (S.total >= ROUND_SIZE) {
+    showSummary();
+    return;
+  }
+  S.answered = false;
+  $id('feedback').className = 'feedback hidden';
+  $id('btn-next').className = 'next-btn hidden';
+
+  if (S.mode === 'piano-interval' || S.mode === 'staff-interval') {
+    S.current = makeIntervalQuestion();
+  } else if (S.mode === 'accidentals') {
+    S.current = makeAccidentalQuestion();
+  } else {
+    S.current = makeGrundtonQuestion();
+  }
+  renderQuestion();
+}
+
+function makeIntervalQuestion() {
+  // Prefer variety; allow Prime rarely, focus on Sekunde–Dezime that fit on keyboard
+  const possible = INTERVALS.filter(iv => {
+    // need room: lo + steps < WHITES.length
+    return iv.steps < WHITES.length;
+  });
+  const iv = possible[Math.floor(Math.random() * possible.length)];
+  const maxLo = WHITES.length - 1 - iv.steps;
+  const lo = Math.floor(Math.random() * (maxLo + 1));
+  const hi = lo + iv.steps;
+  return {
+    type: 'interval',
+    answer: iv.name,
+    lo: WHITES[lo],
+    hi: WHITES[hi],
+    steps: iv.steps,
+  };
+}
+
+function makeAccidentalQuestion() {
+  const a = ACCIDENTALS[Math.floor(Math.random() * ACCIDENTALS.length)];
+  // Also show a note with accidental for Be/Kreuz
+  const note = WHITES[Math.floor(Math.random() * Math.min(8, WHITES.length))];
+  return {
+    type: 'accidental',
+    answer: a.name,
+    symbol: a.symbol,
+    id: a.id,
+    note,
+    showOnStaff: a.id !== 'aufloesung' || Math.random() < 0.5,
+  };
+}
+
+function makeGrundtonQuestion() {
+  const triad = TRIADS[Math.floor(Math.random() * TRIADS.length)];
+  const notes = [WHITES[triad.root], WHITES[triad.mid], WHITES[triad.top]];
+  // Sometimes invert visually? Keep root position for kids – Grundton is lowest
+  const showOn = Math.random() < 0.5 ? 'staff' : 'piano';
+  return {
+    type: 'grundton',
+    answer: notes[0].n,
+    answerKey: notes[0].k,
+    notes,
+    label: triad.label,
+    showOn,
+  };
+}
+
+function renderQuestion() {
+  const q = S.current;
+  const qCard = $id('q-card');
+  const aArea = $id('a-area');
+  qCard.innerHTML = '';
+  aArea.innerHTML = '';
+
+  if (q.type === 'interval') {
+    if (S.mode === 'piano-interval') {
+      qCard.innerHTML = `
+        <p class="q-label">Welches Intervall siehst du auf dem Klavier?</p>
+        <div class="piano-wrap">${pianoSVG([q.lo.k, q.hi.k], false)}</div>`;
+    } else {
+      qCard.innerHTML = `
+        <p class="q-label">Welches Intervall siehst du im Notensystem?</p>
+        <div class="staff-wrap">${staffNotesSVG([q.lo, q.hi])}</div>`;
+    }
+    aArea.innerHTML = `
+      <p class="a-label">Wähle den Namen:</p>
+      <div class="choice-grid c2">${intervalChoices(q.answer)}</div>`;
+  } else if (q.type === 'accidental') {
+    if (q.id === 'aufloesung') {
+      qCard.innerHTML = `
+        <p class="q-label">Wie heißt dieses Vorzeichen?</p>
+        <div style="font-size:4.5rem;font-family:serif;line-height:1">${q.symbol}</div>
+        <div class="staff-wrap">${staffAccidentalSVG(q.note, '♮')}</div>`;
+    } else {
+      qCard.innerHTML = `
+        <p class="q-label">Wie heißt dieses Vorzeichen?</p>
+        <div class="staff-wrap">${staffAccidentalSVG(q.note, q.symbol)}</div>`;
+    }
+    aArea.innerHTML = `
+      <p class="a-label">Wähle den Namen:</p>
+      <div class="choice-grid c3">${accidentalChoices(q.answer)}</div>`;
+  } else if (q.type === 'grundton') {
+    if (q.showOn === 'piano') {
+      qCard.innerHTML = `
+        <p class="q-label">Welcher Ton ist der Grundton dieses Dreiklangs?</p>
+        <div class="piano-wrap">${pianoSVG(q.notes.map(n => n.k), false)}</div>
+        <p style="font-weight:800;color:var(--muted);font-size:.9rem">${q.label}</p>`;
+    } else {
+      qCard.innerHTML = `
+        <p class="q-label">Welcher Ton ist der Grundton dieses Dreiklangs?</p>
+        <div class="staff-wrap">${staffNotesSVG(q.notes)}</div>
+        <p style="font-weight:800;color:var(--muted);font-size:.9rem">${q.label}</p>`;
+    }
+    aArea.innerHTML = `
+      <p class="a-label">Wähle den Grundton:</p>
+      <div class="choice-grid c3">${grundtonChoices(q)}</div>`;
+  }
+}
+
+function intervalChoices(correct) {
+  const names = INTERVALS.map(i => i.name);
+  let wrong = shuffle(names.filter(n => n !== correct)).slice(0, 3);
+  const choices = shuffle([correct, ...wrong]);
+  return choices.map(c =>
+    `<button class="choice-btn" data-ans="${c}" onclick="handleChoice('${c}',this)">${c}</button>`
+  ).join('');
+}
+
+function accidentalChoices(correct) {
+  return ACCIDENTALS.map(a =>
+    `<button class="choice-btn" data-ans="${a.name}" onclick="handleChoice('${a.name}',this)">
+      <span style="font-size:1.6rem;font-family:serif;display:block">${a.symbol}</span>${a.name}
+    </button>`
+  ).join('');
+}
+
+function grundtonChoices(q) {
+  const opts = q.notes.map(n => n.n);
+  // Ensure unique labels if duplicate letter names (A-C-E has two? no - A C E unique)
+  // For F-A-C etc all unique letter names within triad
+  return shuffle(opts).map(c =>
+    `<button class="choice-btn" data-ans="${c}" onclick="handleChoice('${c}',this)">${c}</button>`
+  ).join('');
+}
+
+function handleChoice(ans, btn) {
+  if (S.answered) return;
+  S.answered = true;
+  S.total++;
+  const correct = ans === S.current.answer;
+  if (correct) S.ok++;
+  updateScore();
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.ans === S.current.answer) b.classList.add('correct');
+    else if (b === btn && !correct) b.classList.add('wrong');
+  });
+
+  showFeedback(correct);
+}
+
+function showFeedback(correct) {
+  const fb = $id('feedback');
+  if (correct) {
+    fb.textContent = '✓ Richtig!';
+    fb.className = 'feedback ok';
+    launchConfetti();
+  } else {
+    let hint = '';
+    if (S.current.type === 'interval') hint = ` Richtig ist: ${S.current.answer}.`;
+    else if (S.current.type === 'accidental') hint = ` Richtig ist: ${S.current.answer}.`;
+    else hint = ` Der Grundton ist ${S.current.answer}.`;
+    fb.textContent = `✗ Leider falsch.${hint}`;
+    fb.className = 'feedback err';
+  }
+  const isLast = S.total >= ROUND_SIZE;
+  $id('btn-next').textContent = isLast ? 'Zum Ergebnis →' : 'Weiter →';
+  $id('btn-next').className = 'next-btn';
+}
+
+// ══════════════════════════════════════════════
+// SVG: STAFF
+// ══════════════════════════════════════════════
+function staffNotesSVG(notes, highlightIdx) {
+  // notes: array of {y, ledger, n, k}
+  const xs = notes.length === 1 ? [170]
+    : notes.length === 2 ? [130, 210]
+    : [110, 170, 230];
+
+  let s = `<svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect width="300" height="110" fill="#fffdf7" rx="8"/>`;
+  for (const ly of LINE_YS)
+    s += `<line x1="52" y1="${ly}" x2="288" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+  s += `<text x="4" y="80" font-size="76" font-family="serif" fill="#333">𝄞</text>`;
+
+  notes.forEach((note, i) => {
+    const nx = xs[i];
+    const ny = note.y;
+    const isHL = highlightIdx === i;
+    for (const ly of (note.ledger || []))
+      s += `<line x1="${nx-16}" y1="${ly}" x2="${nx+16}" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+
+    const fill = isHL ? '#4a9e6e' : '#1a1a1a';
+    const stemUp = ny > 50;
+    if (stemUp)
+      s += `<line x1="${nx+NR}" y1="${ny}" x2="${nx+NR}" y2="${ny-36}" stroke="${fill}" stroke-width="1.8"/>`;
+    else
+      s += `<line x1="${nx-NR}" y1="${ny}" x2="${nx-NR}" y2="${ny+36}" stroke="${fill}" stroke-width="1.8"/>`;
+    s += `<ellipse cx="${nx}" cy="${ny}" rx="${NR}" ry="${NR*0.72}" transform="rotate(-12 ${nx} ${ny})" fill="${fill}"/>`;
+  });
+
+  s += `</svg>`;
+  return s;
+}
+
+function staffAccidentalSVG(note, symbol) {
+  const nx = 170;
+  const ny = note.y;
+  let s = `<svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect width="300" height="110" fill="#fffdf7" rx="8"/>`;
+  for (const ly of LINE_YS)
+    s += `<line x1="52" y1="${ly}" x2="288" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+  s += `<text x="4" y="80" font-size="76" font-family="serif" fill="#333">𝄞</text>`;
+  for (const ly of (note.ledger || []))
+    s += `<line x1="${nx-16}" y1="${ly}" x2="${nx+16}" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+  s += `<text x="${nx-22}" y="${ny+8}" font-size="28" font-family="serif" fill="#1a1a1a" text-anchor="middle">${symbol}</text>`;
+  const stemUp = ny > 50;
+  if (stemUp)
+    s += `<line x1="${nx+NR}" y1="${ny}" x2="${nx+NR}" y2="${ny-36}" stroke="#222" stroke-width="1.8"/>`;
+  else
+    s += `<line x1="${nx-NR}" y1="${ny}" x2="${nx-NR}" y2="${ny+36}" stroke="#222" stroke-width="1.8"/>`;
+  s += `<ellipse cx="${nx}" cy="${ny}" rx="${NR}" ry="${NR*0.72}" transform="rotate(-12 ${nx} ${ny})" fill="#1a1a1a"/>`;
+  s += `</svg>`;
+  return s;
+}
+
+// ══════════════════════════════════════════════
+// SVG: PIANO
+// ══════════════════════════════════════════════
+function pianoSVG(highlightKeys, interactive, wrongKey, rootKey) {
+  const hl = new Set(Array.isArray(highlightKeys) ? highlightKeys : (highlightKeys ? [highlightKeys] : []));
+  const ws = WHITES;
+  const bs = BLACKS;
+  const totalW = ws.length * WKW;
+  const svgH = WKH + 16;
+
+  let s = `<svg viewBox="0 0 ${totalW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="max-width:${Math.min(totalW,560)}px;width:100%">`;
+  s += `<rect width="${totalW}" height="${svgH}" fill="#f5f0e8" rx="6"/>`;
+
+  ws.forEach((key, i) => {
+    let fill = '#fff';
+    if (hl.has(key.k)) fill = '#f5c842';
+    if (rootKey && key.k === rootKey) fill = '#4a9e6e';
+    if (key.k === wrongKey) fill = '#fdeee9';
+    const stroke = key.k === wrongKey ? '#e85d2f' : (hl.has(key.k) || key.k === rootKey) ? '#c49a0a' : '#bbb';
+    const sw = (hl.has(key.k) || key.k === rootKey || key.k === wrongKey) ? 2 : 1;
+    const cls = interactive ? `class="piano-key" data-key="${key.k}" style="cursor:pointer"` : '';
+    s += `<rect ${cls} x="${i*WKW+1}" y="8" width="${WKW-2}" height="${WKH}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" rx="3"/>`;
+    s += `<text x="${i*WKW+WKW/2}" y="${8+WKH-7}" text-anchor="middle" font-size="10" font-family="Nunito,sans-serif" font-weight="700" fill="#888" pointer-events="none">${key.n}</text>`;
+  });
+
+  bs.forEach(({i, k}) => {
+    let fill = '#1a1a1a';
+    if (hl.has(k)) fill = '#c49a0a';
+    if (k === wrongKey) fill = '#e85d2f';
+    const x = (i+1)*WKW - BKW/2;
+    const cls = interactive ? `class="piano-key" data-key="${k}" style="cursor:pointer"` : '';
+    s += `<rect ${cls} x="${x}" y="8" width="${BKW}" height="${BKH}" fill="${fill}" stroke="#000" stroke-width="1" rx="2"/>`;
+  });
+
+  s += `</svg>`;
+  return s;
+}
+
+// ══════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+  document.body.appendChild(canvas);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#f5c842','#4a9e6e','#3b6dbf','#e85d2f','#7c4dba','#ff6b9d','#00c9a7'];
+  const pieces = Array.from({length: 70}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -100 - 10,
+    r: Math.random() * 7 + 3,
+    c: colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 5,
+    vy: Math.random() * 4 + 2,
+    angle: Math.random() * Math.PI * 2,
+    va: (Math.random() - 0.5) * 0.25,
+  }));
+  const start = Date.now();
+  let frame;
+  (function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const elapsed = Date.now() - start;
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.angle += p.va;
+      const alpha = elapsed < 1500 ? 1 : Math.max(0, 1 - (elapsed - 1500) / 500);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.r, -p.r * 0.5, p.r * 2, p.r);
+      ctx.restore();
+    });
+    if (elapsed < 2000) frame = requestAnimationFrame(draw);
+    else { cancelAnimationFrame(frame); canvas.remove(); }
+  })();
+}
+</script>
+</body>
+</html>
