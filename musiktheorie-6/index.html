@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Musiktheorie 6. Klasse</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&amp;family=Nunito+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #fdf8f0;
+  --card: #ffffff;
+  --ink: #2d2417;
+  --muted: #8a7a5a;
+  --yellow: #f5c842;
+  --yellow-dk: #c49a0a;
+  --green: #4a9e6e;
+  --green-lt: #e8f5ee;
+  --red: #e85d2f;
+  --red-lt: #fdeee9;
+  --blue: #3b6dbf;
+  --blue-lt: #e8eef8;
+  --purple: #7c4dba;
+  --purple-lt: #f0eaf8;
+  --r: 16px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.10);
+}
+
+html, body { width: 100%; min-height: 100%; background: var(--bg); font-family: 'Nunito', sans-serif; color: var(--ink); }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%, rgba(245,200,66,.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 85% 85%, rgba(74,158,110,.14) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+.screen { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px 16px 48px; }
+.screen.hidden { display: none; }
+
+#screen-start { gap: 14px; max-width: 640px; margin: 0 auto; padding-top: clamp(16px, 4vh, 40px); width: 100%; }
+
+.app-title {
+  background: var(--yellow); color: var(--ink);
+  font-size: clamp(1.25rem, 5vw, 1.95rem); font-weight: 900;
+  padding: 10px 22px; border-radius: 50px;
+  letter-spacing: .02em; box-shadow: 4px 4px 0 var(--yellow-dk);
+  text-align: center;
+}
+
+.grade-pill {
+  display: inline-block; background: var(--green); color: #fff;
+  font-size: .78rem; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; padding: 4px 14px; border-radius: 50px;
+}
+
+.intro {
+  font-size: .98rem; font-weight: 700; color: var(--muted);
+  text-align: center; line-height: 1.5; max-width: 520px;
+}
+
+.section-label {
+  font-size: .78rem; font-weight: 800; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--muted);
+  align-self: flex-start; width: 100%; padding-left: 2px; margin-top: 4px;
+}
+
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+@media (min-width: 560px) {
+  .mode-grid.learn-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+.mode-btn {
+  padding: 13px 10px; border: 3px solid #e0d8c8; border-radius: var(--r);
+  background: var(--card); font-family: 'Nunito', sans-serif;
+  font-size: .86rem; font-weight: 800; color: var(--ink);
+  cursor: pointer; transition: all .18s; text-align: center; line-height: 1.35;
+}
+.mode-btn:hover { border-color: var(--green); background: var(--green-lt); }
+.mode-btn.active { border-color: var(--green); background: var(--green); color: #fff; box-shadow: 3px 3px 0 #2d7a50; }
+.mode-btn .emoji { display: block; font-size: 1.45rem; margin-bottom: 3px; }
+
+.topic-btn {
+  width: 100%; padding: 12px 10px; border: 3px solid #e0d8c8; border-radius: var(--r);
+  background: var(--card); font-family: 'Nunito', sans-serif;
+  font-size: .9rem; font-weight: 800; color: var(--ink);
+  cursor: pointer; transition: all .18s; text-align: center;
+}
+.topic-btn:hover { border-color: var(--blue); background: var(--blue-lt); }
+.topic-btn.active { border-color: var(--blue); background: var(--blue); color: #fff; box-shadow: 3px 3px 0 rgba(59,109,191,.4); }
+
+.start-btn {
+  padding: 16px 48px; background: var(--green); color: #fff; border: none;
+  border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 1.15rem; font-weight: 900;
+  cursor: pointer; box-shadow: 4px 4px 0 #2d7a50; transition: all .15s; letter-spacing: .02em;
+  margin-top: 6px;
+}
+.start-btn:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 #2d7a50; }
+.start-btn:active { transform: translateY(1px); box-shadow: 2px 2px 0 #2d7a50; }
+.start-btn:disabled { background: #c0b8a8; box-shadow: 3px 3px 0 #a8a090; cursor: not-allowed; transform: none; }
+
+.hub-link {
+  font-size: .85rem; font-weight: 700; color: var(--muted);
+  text-decoration: none; margin-top: 2px;
+}
+.hub-link:hover { color: var(--ink); }
+
+#screen-learn, #screen-exercise { gap: 14px; max-width: 640px; margin: 0 auto; padding-top: clamp(14px, 3vh, 32px); width: 100%; }
+
+.ex-header { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; }
+.back-btn {
+  padding: 8px 16px; background: transparent; border: 2px solid #e0d8c8; border-radius: 50px;
+  font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.back-btn:hover { border-color: var(--ink); color: var(--ink); }
+.score-pill {
+  background: var(--card); border: 2px solid #e0d8c8; border-radius: 50px;
+  padding: 6px 16px; font-size: .88rem; font-weight: 800; white-space: nowrap;
+}
+.score-pill .ok { color: var(--green); }
+
+.mode-label {
+  font-size: .75rem; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); text-align: center; width: 100%;
+}
+
+.q-card {
+  width: 100%; background: var(--card); border: 2px solid #e0d8c8; border-radius: 20px;
+  padding: 18px 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.q-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.q-prompt { font-size: 1.05rem; font-weight: 800; text-align: center; line-height: 1.4; }
+
+.staff-wrap { width: 100%; max-width: 520px; }
+.staff-wrap svg { width: 100%; height: auto; display: block; }
+.piano-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.piano-wrap svg { display: block; margin: 0 auto; }
+
+.a-area { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.a-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); align-self: flex-start; }
+
+.choice-grid { display: grid; gap: 10px; width: 100%; }
+.choice-grid.c2 { grid-template-columns: repeat(2, 1fr); }
+.choice-grid.c3 { grid-template-columns: repeat(3, 1fr); }
+.choice-grid.c4 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 480px) {
+  .choice-grid.c4 { grid-template-columns: repeat(4, 1fr); }
+}
+.choice-btn {
+  padding: 14px 8px; background: var(--card); border: 3px solid #e0d8c8; border-radius: var(--r);
+  font-family: 'Nunito', sans-serif; font-size: clamp(.9rem, 3.2vw, 1.1rem); font-weight: 900;
+  color: var(--ink); cursor: pointer; transition: all .15s; text-align: center; line-height: 1.25;
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-lt); transform: translateY(-2px); }
+.choice-btn.correct { background: var(--green-lt) !important; border-color: var(--green) !important; color: var(--green) !important; }
+.choice-btn.wrong { background: var(--red-lt) !important; border-color: var(--red) !important; color: var(--red) !important; }
+.choice-btn:disabled { cursor: not-allowed; }
+
+.feedback {
+  width: 100%; padding: 12px 18px; border-radius: var(--r);
+  font-size: 1.02rem; font-weight: 800; text-align: center; transition: all .25s; line-height: 1.4;
+}
+.feedback.ok { background: var(--green-lt); color: var(--green); border: 2px solid var(--green); }
+.feedback.err { background: var(--red-lt); color: var(--red); border: 2px solid var(--red); }
+.feedback.hidden { display: none; }
+
+.next-btn {
+  padding: 13px 40px; background: var(--blue); color: #fff; border: none;
+  border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 900;
+  cursor: pointer; box-shadow: 3px 3px 0 rgba(59,109,191,.4); transition: all .15s;
+}
+.next-btn:hover { transform: translateY(-2px); }
+.next-btn.hidden { display: none; }
+
+.flashcard {
+  width: 100%; min-height: 340px; perspective: 1200px; cursor: pointer;
+  border: none; background: none; font: inherit; color: inherit;
+}
+.flashcard-inner {
+  position: relative; width: 100%; min-height: 340px;
+  transition: transform .5s ease; transform-style: preserve-3d;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  border-radius: 20px; box-shadow: var(--shadow); border: 2px solid #e0d8c8;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 28px 18px 20px; background: var(--card);
+}
+.face.front { border-top: 10px solid var(--card-accent, var(--blue)); }
+.face.back {
+  transform: rotateY(180deg);
+  border-top: 10px solid var(--card-accent, var(--blue));
+  justify-content: flex-start; overflow-y: auto;
+}
+.face .term { font-size: clamp(1.7rem, 7vw, 2.8rem); font-weight: 900; line-height: 1.1; text-align: center; }
+.face .symbol-huge { font-size: clamp(3.2rem, 14vw, 5rem); line-height: 1; font-family: serif; }
+.face .hint { color: var(--muted); font-weight: 700; font-size: .92rem; }
+.face .explain { font-size: 1rem; font-weight: 700; color: var(--muted); line-height: 1.5; max-width: 460px; text-align: center; }
+.face .explain b { color: var(--ink); }
+.face .example-box {
+  background: var(--blue-lt); border-radius: 12px; padding: 10px 14px;
+  font-weight: 800; font-size: .95rem; color: var(--blue); text-align: center;
+}
+.face .topic-tag {
+  position: absolute; top: 12px; left: 12px;
+  padding: 4px 12px; border-radius: 50px;
+  font-size: .7rem; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; color: #fff;
+  background: var(--card-accent, var(--blue));
+}
+.compare-table {
+  width: 100%; max-width: 420px; border-collapse: collapse; font-size: .82rem; font-weight: 700;
+  margin-top: 4px;
+}
+.compare-table th, .compare-table td {
+  border: 1.5px solid #e0d8c8; padding: 6px 8px; text-align: left;
+}
+.compare-table th { background: var(--blue-lt); color: var(--blue); font-weight: 900; }
+.card-nav { display: flex; align-items: center; justify-content: center; gap: 16px; width: 100%; }
+.nav-round {
+  width: 52px; height: 52px; border-radius: 50%; border: 3px solid #e0d8c8;
+  background: var(--card); font-size: 1.4rem; font-weight: 900; cursor: pointer;
+  font-family: 'Nunito', sans-serif; color: var(--ink); transition: all .15s;
+}
+.nav-round:hover { border-color: var(--blue); background: var(--blue-lt); }
+.nav-round:disabled { opacity: .4; cursor: not-allowed; }
+.card-count { font-weight: 800; color: var(--muted); min-width: 64px; text-align: center; }
+
+#screen-summary { justify-content: center; gap: 0; }
+.summary-card {
+  background: var(--card); border: 2px solid #e0d8c8; border-radius: 24px;
+  padding: 40px 32px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  max-width: 400px; width: 100%; text-align: center;
+}
+.summary-emoji { font-size: 4rem; line-height: 1; }
+.summary-title { font-size: 1.6rem; font-weight: 900; }
+.summary-score { font-size: 1.05rem; font-weight: 700; color: var(--muted); }
+.summary-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+.math-row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px;
+  font-size: 1.15rem; font-weight: 900;
+}
+.math-chip {
+  background: var(--blue-lt); color: var(--blue); border-radius: 12px;
+  padding: 8px 12px; font-weight: 900;
+}
+.fact-list { text-align: left; max-width: 420px; width: 100%; padding: 0 8px; }
+.fact-list li { margin: 6px 0; font-weight: 700; color: var(--muted); line-height: 1.4; }
+.fact-list li b { color: var(--ink); }
+
+.mini-staff { width: 100%; max-width: 300px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ START ═══════════════ -->
+<div id="screen-start" class="screen">
+  <span class="grade-pill">6. Klasse · Gymnasium / Realschule</span>
+  <h1 class="app-title">🎼 Musiktheorie 6</h1>
+  <p class="intro">Intervalle bis Dezime, Vorzeichen &amp; Versetzungszeichen – mit Lernkarten und Übungen aus dem Unterricht.</p>
+
+  <p class="section-label">Lernen</p>
+  <div class="mode-grid learn-grid">
+    <button class="topic-btn" data-learn="intervalle" onclick="selectLearn(this)">📏 Intervalle</button>
+    <button class="topic-btn" data-learn="vorzeichen" onclick="selectLearn(this)">♯♭ Namen &amp; Zeichen</button>
+    <button class="topic-btn" data-learn="versetzung" onclick="selectLearn(this)">⚖️ Vorzeichen vs.&nbsp;Versetzung</button>
+  </div>
+  <button class="start-btn" id="btn-learn" onclick="startLearn()" disabled>Lernkarten starten</button>
+
+  <p class="section-label">Üben</p>
+  <div class="mode-grid">
+    <button class="mode-btn" data-mode="staff-interval" onclick="selectMode(this)">
+      <span class="emoji">🎼</span>Intervall<br>bestimmen
+    </button>
+    <button class="mode-btn" data-mode="build-interval" onclick="selectMode(this)">
+      <span class="emoji">🛠️</span>Intervall<br>bauen
+    </button>
+    <button class="mode-btn" data-mode="interval-math" onclick="selectMode(this)">
+      <span class="emoji">➕</span>Intervall-<br>Rechnung
+    </button>
+    <button class="mode-btn" data-mode="note-names" onclick="selectMode(this)">
+      <span class="emoji">🏷️</span>Töne mit<br>Vorzeichen
+    </button>
+    <button class="mode-btn" data-mode="vor-vs-vers" onclick="selectMode(this)">
+      <span class="emoji">⚖️</span>Vorzeichen<br>oder Versetzung?
+    </button>
+    <button class="mode-btn" data-mode="sekunden" onclick="selectMode(this)">
+      <span class="emoji">🔍</span>Sekunden<br>groß / klein
+    </button>
+  </div>
+
+  <button class="start-btn" id="btn-start" onclick="startPractice()" disabled>Übung starten</button>
+  <a class="hub-link" href="../index.html">← Zurück zu allen Apps</a>
+</div>
+
+<!-- ═══════════════ LEARN ═══════════════ -->
+<div id="screen-learn" class="screen hidden">
+  <div class="ex-header">
+    <button class="back-btn" onclick="goHome()">← Zurück</button>
+    <div class="score-pill" id="learn-topic-pill">Lernen</div>
+  </div>
+  <button class="flashcard" id="flashcard" onclick="this.classList.toggle('flipped')" aria-label="Karte umdrehen">
+    <div class="flashcard-inner">
+      <div class="face front" id="card-front"></div>
+      <div class="face back" id="card-back"></div>
+    </div>
+  </button>
+  <div class="card-nav">
+    <button class="nav-round" id="card-prev" onclick="prevCard()" aria-label="Vorherige">←</button>
+    <span class="card-count" id="card-count">1 / 1</span>
+    <button class="nav-round" id="card-next" onclick="nextCard()" aria-label="Nächste">→</button>
+  </div>
+</div>
+
+<!-- ═══════════════ EXERCISE ═══════════════ -->
+<div id="screen-exercise" class="screen hidden">
+  <div class="ex-header">
+    <button class="back-btn" onclick="goHome()">← Zurück</button>
+    <div class="score-pill"><span class="ok" id="sc-ok">0</span> / <span id="sc-total">0</span></div>
+  </div>
+  <p class="mode-label" id="mode-label"></p>
+  <div class="q-card" id="q-card"></div>
+  <div class="a-area" id="a-area"></div>
+  <div class="feedback hidden" id="feedback"></div>
+  <button class="next-btn hidden" id="btn-next" onclick="nextQuestion()">Weiter →</button>
+</div>
+
+<!-- ═══════════════ SUMMARY ═══════════════ -->
+<div id="screen-summary" class="screen hidden">
+  <div class="summary-card">
+    <div class="summary-emoji" id="summary-emoji"></div>
+    <h2 class="summary-title" id="summary-title"></h2>
+    <p class="summary-score" id="summary-score"></p>
+    <div class="summary-actions">
+      <button class="start-btn" onclick="startPractice()">Nochmal</button>
+      <button class="back-btn" style="padding:16px 24px;font-size:1rem" onclick="goHome()">← Zur Auswahl</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// CONSTANTS & DATA
+// ══════════════════════════════════════════════
+const ROUND_SIZE = 10;
+const LINE_YS = [30, 40, 50, 60, 70];
+const NR = 7;
+const WKW = 36;
+const WKH = 88;
+const BKW = 22;
+const BKH = 54;
+
+// White keys C4–E5 (treble)
+const WHITES = [
+  { k:'C4', n:'C', y:80, ledger:[80], deg:0 },
+  { k:'D4', n:'D', y:75, ledger:[], deg:1 },
+  { k:'E4', n:'E', y:70, ledger:[], deg:2 },
+  { k:'F4', n:'F', y:65, ledger:[], deg:3 },
+  { k:'G4', n:'G', y:60, ledger:[], deg:4 },
+  { k:'A4', n:'A', y:55, ledger:[], deg:5 },
+  { k:'H4', n:'H', y:50, ledger:[], deg:6 },
+  { k:'C5', n:'C', y:45, ledger:[], deg:7 },
+  { k:'D5', n:'D', y:40, ledger:[], deg:8 },
+  { k:'E5', n:'E', y:35, ledger:[], deg:9 },
+];
+
+const BLACKS = [
+  { i:0, k:'Cis4' }, { i:1, k:'Dis4' },
+  { i:3, k:'Fis4' }, { i:4, k:'Gis4' }, { i:5, k:'Ais4' },
+  { i:7, k:'Cis5' }, { i:8, k:'Dis5' },
+];
+
+const INTERVALS = [
+  { name:'Prime',   steps:0, num:1, tip:'Gleicher Ton – Abstand 0 (wird mitgezählt!)' },
+  { name:'Sekunde', steps:1, num:2, tip:'Nachbarnote, z. B. C → D' },
+  { name:'Terz',    steps:2, num:3, tip:'Zwei Schritte, z. B. C → E' },
+  { name:'Quarte',  steps:3, num:4, tip:'Drei Schritte, z. B. C → F' },
+  { name:'Quinte',  steps:4, num:5, tip:'Vier Schritte, z. B. C → G' },
+  { name:'Sexte',   steps:5, num:6, tip:'Fünf Schritte, z. B. C → A' },
+  { name:'Septime', steps:6, num:7, tip:'Sechs Schritte, z. B. C → H' },
+  { name:'Oktave',  steps:7, num:8, tip:'Sieben Schritte, z. B. C → c' },
+  { name:'None',    steps:8, num:9, tip:'Oktave + Sekunde, z. B. C → d' },
+  { name:'Dezime',  steps:9, num:10, tip:'Oktave + Terz, z. B. C → e' },
+];
+
+const SHARP_NAMES = {
+  C:'Cis', D:'Dis', E:'Eis', F:'Fis', G:'Gis', A:'Ais', H:'His'
+};
+const FLAT_NAMES = {
+  C:'Ces', D:'Des', E:'Es', F:'Fes', G:'Ges', A:'As', H:'B'
+};
+
+const ACCIDENTAL_NOTES = [
+  { base:'C', acc:'♯', name:'Cis', explain:'C + Kreuz → Cis' },
+  { base:'D', acc:'♯', name:'Dis', explain:'D + Kreuz → Dis' },
+  { base:'F', acc:'♯', name:'Fis', explain:'F + Kreuz → Fis' },
+  { base:'G', acc:'♯', name:'Gis', explain:'G + Kreuz → Gis' },
+  { base:'A', acc:'♯', name:'Ais', explain:'A + Kreuz → Ais' },
+  { base:'E', acc:'♯', name:'Eis', explain:'E + Kreuz → Eis (selten)' },
+  { base:'H', acc:'♯', name:'His', explain:'H + Kreuz → His (selten)' },
+  { base:'C', acc:'♭', name:'Ces', explain:'C + Be → Ces' },
+  { base:'D', acc:'♭', name:'Des', explain:'D + Be → Des' },
+  { base:'E', acc:'♭', name:'Es', explain:'E + Be → Es (nicht „Ees“!)' },
+  { base:'F', acc:'♭', name:'Fes', explain:'F + Be → Fes' },
+  { base:'G', acc:'♭', name:'Ges', explain:'G + Be → Ges' },
+  { base:'A', acc:'♭', name:'As', explain:'A + Be → As (nicht „Aes“!)' },
+  { base:'H', acc:'♭', name:'B', explain:'H + Be → B (nicht „Hes“!)' },
+];
+
+const LEARN_INTERVALLE = [
+  {
+    topic: 'Intervalle',
+    front: 'Was ist ein Intervall?',
+    backTitle: 'Abstand zwischen zwei Tönen',
+    explain: 'Ein Intervall gibt den <b>Abstand</b> zwischen zwei Tönen an – nacheinander (melodisch) oder gleichzeitig (harmonisch).',
+    example: 'Merke: Der erste Ton wird mitgezählt!',
+    accent: '#3b6dbf',
+  },
+  {
+    topic: 'Intervalle',
+    front: 'Mitzählen!',
+    backTitle: 'Der Startton zählt mit',
+    explain: 'Bei der Intervallbestimmung zählt der <b>erste Ton als 1</b>. Von C nach F: C–D–E–F = <b>4 Töne = Quarte</b>.',
+    example: 'C → F = Quarte',
+    accent: '#c49a0a',
+    steps: 3,
+  },
+  ...INTERVALS.map((iv, i) => ({
+    topic: 'Intervalle',
+    front: iv.name,
+    backTitle: `${iv.name} (${iv.num})`,
+    explain: `Die <b>${iv.name}</b> umfasst ${iv.num} Stammtöne. ${iv.tip}.`,
+    example: iv.tip,
+    accent: ['#3b6dbf','#4a9e6e','#7c4dba','#c49a0a','#e85d2f'][i % 5],
+    steps: iv.steps,
+  })),
+];
+
+const LEARN_VORZEICHEN = [
+  {
+    topic: 'Zeichen',
+    frontSymbol: '♯',
+    front: 'Kreuz',
+    backTitle: 'Kreuz ♯',
+    explain: 'Ein Kreuz <b>erhöht</b> einen Ton um einen <b>Halbton</b>. An den Namen wird meist <b>-is</b> angehängt: C → Cis, F → Fis.',
+    example: 'C♯ = Cis · G♯ = Gis',
+    accent: '#7c4dba',
+  },
+  {
+    topic: 'Zeichen',
+    frontSymbol: '♭',
+    front: 'Be',
+    backTitle: 'Be ♭',
+    explain: 'Ein Be <b>erniedrigt</b> einen Ton um einen <b>Halbton</b>. Meist Endung <b>-es</b>. Ausnahmen: <b>Es, As, B</b>.',
+    example: 'E♭ = Es · A♭ = As · H♭ = B',
+    accent: '#3b6dbf',
+  },
+  {
+    topic: 'Zeichen',
+    frontSymbol: '♮',
+    front: 'Auflösungszeichen',
+    backTitle: 'Auflösungszeichen ♮',
+    explain: 'Das Auflösungszeichen <b>hebt</b> ein Kreuz oder Be wieder auf. Die Note wird wieder zum Stammtön.',
+    example: 'Cis + ♮ → wieder C',
+    accent: '#4a9e6e',
+  },
+  {
+    topic: 'Namen',
+    front: 'Ausnahmen bei Bes',
+    backTitle: 'Es · As · B',
+    explain: '<b>E♭</b> heißt <b>Es</b> (nicht Ees). <b>A♭</b> heißt <b>As</b> (nicht Aes). <b>H♭</b> heißt <b>B</b> (nicht Hes).',
+    example: 'Im Deutschen: H + Be = B',
+    accent: '#e85d2f',
+  },
+  {
+    topic: 'Reihenfolge',
+    front: 'Reihenfolge der Kreuze',
+    backTitle: 'fis – cis – gis – dis – ais – eis',
+    explain: 'Vorzeichen hinter dem Schlüssel folgen einer festen Reihenfolge. Kreuze: <b>fis, cis, gis, dis, ais, eis</b>.',
+    example: 'Zwei Kreuze = Fis und Cis',
+    accent: '#7c4dba',
+  },
+  {
+    topic: 'Reihenfolge',
+    front: 'Reihenfolge der Bes',
+    backTitle: 'b – es – as – des – ges – ces',
+    explain: 'Bes erscheinen in der Reihenfolge <b>b, es, as, des, ges, ces</b>.',
+    example: 'Zwei Bes = B und Es',
+    accent: '#3b6dbf',
+  },
+];
+
+const LEARN_VERSETZUNG = [
+  {
+    topic: 'Vergleich',
+    front: 'Vorzeichen',
+    backTitle: 'Vorzeichen = Tonart',
+    explain: 'Vorzeichen stehen <b>direkt hinter dem Notenschlüssel</b> (vor der Taktangabe). Sie bestimmen die <b>Tonart</b> und gelten bis zum Tonartenwechsel – in <b>allen Oktaven</b>.',
+    example: 'Zwei Kreuze → jedes F = Fis, jedes C = Cis',
+    accent: '#3b6dbf',
+  },
+  {
+    topic: 'Vergleich',
+    front: 'Versetzungszeichen',
+    backTitle: 'Versetzung = einzelne Note',
+    explain: 'Versetzungszeichen stehen <b>unmittelbar vor dem Notenkopf</b>. Sie gelten grundsätzlich nur <b>bis zum Taktende</b> und nur in der <b>selben Oktavlage</b>.',
+    example: 'Gis im Takt → nächstes G im gleichen Takt auch Gis',
+    accent: '#e85d2f',
+  },
+  {
+    topic: 'Vergleich',
+    front: 'Position',
+    backTitle: 'Wo stehen sie?',
+    explain: '<b>Vorzeichen:</b> hinter dem Schlüssel.<br><b>Versetzungszeichen:</b> direkt vor der Note.',
+    example: 'Gleiche Symbole ♯ ♭ ♮ – unterschiedliche Wirkung',
+    accent: '#c49a0a',
+    compare: true,
+  },
+  {
+    topic: 'Vergleich',
+    front: 'Gültigkeit',
+    backTitle: 'Wie lange gelten sie?',
+    explain: '<b>Vorzeichen:</b> fürs ganze Stück (bis Tonartenwechsel).<br><b>Versetzung:</b> bis zum Taktstrich (außer übergebundene Noten).',
+    example: '♮ kann ein Vorzeichen im Takt vorübergehend aufheben',
+    accent: '#4a9e6e',
+  },
+  {
+    topic: 'Vergleich',
+    front: 'Oktaven',
+    backTitle: 'Welche Oktaven?',
+    explain: '<b>Vorzeichen</b> gelten in <b>allen</b> Oktavlagen.<br><b>Versetzungszeichen</b> nur in der <b>gleichen</b> Oktave.',
+    example: 'Fis-Vorzeichen → jedes F. Gis-Versetzung → nur dieses Gis.',
+    accent: '#7c4dba',
+  },
+  {
+    topic: 'Merksatz',
+    front: 'Merksatz',
+    backTitle: 'Tonart vs. Ausnahme',
+    explain: '<b>Vorzeichen</b> bestimmen die grundlegenden Tonhöhen eines Stücks. <b>Versetzungszeichen</b> verändern einzelne Töne vorübergehend.',
+    example: 'Vorzeichen = Regel · Versetzung = Ausnahme im Takt',
+    accent: '#3b6dbf',
+  },
+];
+
+const LEARN_SETS = {
+  intervalle: LEARN_INTERVALLE,
+  vorzeichen: LEARN_VORZEICHEN,
+  versetzung: LEARN_VERSETZUNG,
+};
+
+const LEARN_LABELS = {
+  intervalle: 'Intervalle',
+  vorzeichen: 'Namen & Zeichen',
+  versetzung: 'Vorzeichen vs. Versetzung',
+};
+
+const MODE_LABELS = {
+  'staff-interval': '🎼 Intervall bestimmen',
+  'build-interval': '🛠️ Intervall bauen',
+  'interval-math': '➕ Intervall-Rechnung',
+  'note-names': '🏷️ Töne mit Vorzeichen',
+  'vor-vs-vers': '⚖️ Vorzeichen oder Versetzung?',
+  'sekunden': '🔍 Sekunden groß / klein',
+};
+
+// Quiz facts for Vorzeichen vs Versetzung
+const VOR_VS_VERS = [
+  {
+    q: 'Wo stehen Vorzeichen?',
+    answer: 'Hinter dem Notenschlüssel',
+    wrong: ['Direkt vor dem Notenkopf', 'Nur unter dem Notensystem', 'Am Ende jeder Zeile'],
+    hint: 'Vorzeichen stehen hinter dem Schlüssel und bestimmen die Tonart.',
+  },
+  {
+    q: 'Wo stehen Versetzungszeichen?',
+    answer: 'Direkt vor dem Notenkopf',
+    wrong: ['Hinter dem Notenschlüssel', 'Nur in der ersten Zeile', 'Über dem Taktstrich'],
+    hint: 'Versetzungszeichen stehen unmittelbar vor der Note.',
+  },
+  {
+    q: 'Wie lange gilt ein Versetzungszeichen normalerweise?',
+    answer: 'Bis zum Ende des Takts',
+    wrong: ['Für das ganze Stück', 'Nur für genau eine Note', 'Bis zum nächsten Vorzeichen'],
+    hint: 'Nach dem Taktstrich verliert es normalerweise seine Gültigkeit.',
+  },
+  {
+    q: 'Für welche Oktaven gelten Vorzeichen?',
+    answer: 'Für alle Oktavlagen',
+    wrong: ['Nur die gezeigte Oktave', 'Nur die mittlere Lage', 'Nur die erste Zeile'],
+    hint: 'Ein Fis-Vorzeichen gilt für jedes F – hoch und tief.',
+  },
+  {
+    q: 'Für welche Oktaven gilt ein Versetzungszeichen?',
+    answer: 'Nur dieselbe Oktavlage',
+    wrong: ['Alle Oktaven', 'Nur tiefere Oktaven', 'Nur höhere Oktaven'],
+    hint: 'Ein Gis gilt nicht automatisch für ein G in anderer Oktave.',
+  },
+  {
+    q: 'Was bestimmen Vorzeichen?',
+    answer: 'Die Tonart des Stücks',
+    wrong: ['Nur den Rhythmus', 'Nur die Lautstärke', 'Nur den Takt'],
+    hint: 'Vorzeichen hinter dem Schlüssel legen die Tonart fest.',
+  },
+  {
+    q: 'Was macht ein Auflösungszeichen (♮) bei einem Vorzeichen?',
+    answer: 'Hebt es im Takt vorübergehend auf',
+    wrong: ['Löscht die Tonart dauerhaft', 'Erhöht den Ton um einen Ganzton', 'Erniedrigt den Ton um einen Halbton'],
+    hint: '♮ setzt die Note im Takt wieder auf den Stammtön zurück.',
+  },
+  {
+    q: 'Gilt ein Versetzungszeichen auch für dieselbe Note später im gleichen Takt?',
+    answer: 'Ja, in derselben Oktave',
+    wrong: ['Nein, nie', 'Nur wenn ein Bogen da ist', 'Nur bei Vorzeichen'],
+    hint: 'Im gleichen Takt und gleicher Oktave bleibt die Versetzung wirksam.',
+  },
+];
+
+// Seconds: major (Ganzton) / minor (Halbton) – diatonic examples on staff degrees
+const SECONDS = [
+  { lo:'C4', hi:'D4', quality:'groß', tip:'C–D ist ein Ganzton → große Sekunde' },
+  { lo:'D4', hi:'E4', quality:'groß', tip:'D–E ist ein Ganzton → große Sekunde' },
+  { lo:'E4', hi:'F4', quality:'klein', tip:'E–F ist ein Halbton → kleine Sekunde' },
+  { lo:'F4', hi:'G4', quality:'groß', tip:'F–G ist ein Ganzton → große Sekunde' },
+  { lo:'G4', hi:'A4', quality:'groß', tip:'G–A ist ein Ganzton → große Sekunde' },
+  { lo:'A4', hi:'H4', quality:'groß', tip:'A–H ist ein Ganzton → große Sekunde' },
+  { lo:'H4', hi:'C5', quality:'klein', tip:'H–C ist ein Halbton → kleine Sekunde' },
+  { lo:'C5', hi:'D5', quality:'groß', tip:'C–D ist ein Ganzton → große Sekunde' },
+  { lo:'D5', hi:'E5', quality:'groß', tip:'D–E ist ein Ganzton → große Sekunde' },
+];
+
+// ── STATE ──
+let S = {
+  mode: null,
+  learnTopic: null,
+  cardIdx: 0,
+  cards: [],
+  answered: false,
+  ok: 0,
+  total: 0,
+  current: null,
+};
+
+function $id(id) { return document.getElementById(id); }
+function shuffle(a) {
+  const arr = [...a];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  $id(id).classList.remove('hidden');
+}
+function goHome() {
+  S.mode = null;
+  S.learnTopic = null;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  $id('btn-start').disabled = true;
+  $id('btn-learn').disabled = true;
+  showScreen('screen-start');
+}
+function whiteByKey(k) { return WHITES.find(w => w.k === k); }
+function escapeAttr(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ══════════════════════════════════════════════
+// LEARN MODE
+// ══════════════════════════════════════════════
+function selectLearn(btn) {
+  S.learnTopic = btn.dataset.learn;
+  document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  $id('btn-learn').disabled = false;
+}
+
+function startLearn() {
+  if (!S.learnTopic) return;
+  S.cards = shuffle(LEARN_SETS[S.learnTopic]);
+  $id('learn-topic-pill').textContent = LEARN_LABELS[S.learnTopic];
+  S.cardIdx = 0;
+  showScreen('screen-learn');
+  renderCard();
+}
+
+function renderCard() {
+  const card = S.cards[S.cardIdx];
+  const fc = $id('flashcard');
+  fc.classList.remove('flipped');
+  fc.style.setProperty('--card-accent', card.accent || '#3b6dbf');
+
+  const front = $id('card-front');
+  const back = $id('card-back');
+  const topicTag = card.topic ? `<span class="topic-tag">${card.topic}</span>` : '';
+
+  let frontHtml = topicTag;
+  if (card.frontSymbol) {
+    frontHtml += `<div class="symbol-huge">${card.frontSymbol}</div><div class="term" style="font-size:1.5rem">${card.front}</div>`;
+  } else {
+    frontHtml += `<div class="term">${card.front}</div>`;
+  }
+  frontHtml += `<div class="hint">👆 Tippen zum Umdrehen</div>`;
+  front.innerHTML = frontHtml;
+
+  let backHtml = topicTag;
+  backHtml += `<div class="term" style="font-size:clamp(1.25rem,5.5vw,1.85rem)">${card.backTitle}</div>`;
+  backHtml += `<div class="explain">${card.explain}</div>`;
+  if (card.example) backHtml += `<div class="example-box">${card.example}</div>`;
+
+  if (card.steps != null) {
+    const lo = 0;
+    const hi = Math.min(lo + card.steps, WHITES.length - 1);
+    backHtml += `<div class="mini-staff">${staffNotesSVG([WHITES[lo], WHITES[hi]])}</div>`;
+  }
+
+  if (card.compare) {
+    backHtml += `<table class="compare-table">
+      <tr><th></th><th>Vorzeichen</th><th>Versetzung</th></tr>
+      <tr><td><b>Ort</b></td><td>hinter Schlüssel</td><td>vor Note</td></tr>
+      <tr><td><b>Dauer</b></td><td>bis Tonartenwechsel</td><td>bis Taktende</td></tr>
+      <tr><td><b>Oktave</b></td><td>alle</td><td>nur dieselbe</td></tr>
+    </table>`;
+  }
+
+  back.innerHTML = backHtml;
+
+  $id('card-count').textContent = `${S.cardIdx + 1} / ${S.cards.length}`;
+  $id('card-prev').disabled = S.cardIdx === 0;
+  $id('card-next').disabled = S.cardIdx >= S.cards.length - 1;
+}
+
+function prevCard() {
+  if (S.cardIdx <= 0) return;
+  S.cardIdx--;
+  renderCard();
+}
+function nextCard() {
+  if (S.cardIdx >= S.cards.length - 1) return;
+  S.cardIdx++;
+  renderCard();
+}
+
+// ══════════════════════════════════════════════
+// PRACTICE SETUP
+// ══════════════════════════════════════════════
+function selectMode(btn) {
+  S.mode = btn.dataset.mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  $id('btn-start').disabled = false;
+}
+
+function startPractice() {
+  if (!S.mode) return;
+  S.ok = 0; S.total = 0; S.answered = false;
+  updateScore();
+  $id('mode-label').textContent = MODE_LABELS[S.mode];
+  showScreen('screen-exercise');
+  nextQuestion();
+}
+
+function updateScore() {
+  $id('sc-ok').textContent = S.ok;
+  $id('sc-total').textContent = ROUND_SIZE;
+}
+
+function showSummary() {
+  const pct = S.total > 0 ? Math.round(S.ok / S.total * 100) : 0;
+  const emoji = pct === 100 ? '🏆' : pct >= 80 ? '⭐' : pct >= 60 ? '👍' : '💪';
+  const msg = pct === 100 ? 'Perfekt! Alles richtig!' : pct >= 80 ? 'Super gemacht!' : pct >= 60 ? 'Gut! Weiter üben!' : 'Nicht aufgeben!';
+  $id('summary-emoji').textContent = emoji;
+  $id('summary-title').textContent = msg;
+  $id('summary-score').textContent = `${S.ok} von ${S.total} Fragen richtig (${pct} %)`;
+  showScreen('screen-summary');
+}
+
+// ══════════════════════════════════════════════
+// QUESTION GENERATION
+// ══════════════════════════════════════════════
+function nextQuestion() {
+  if (S.total >= ROUND_SIZE) {
+    showSummary();
+    return;
+  }
+  S.answered = false;
+  $id('feedback').className = 'feedback hidden';
+  $id('btn-next').className = 'next-btn hidden';
+
+  const makers = {
+    'staff-interval': makeIntervalQuestion,
+    'build-interval': makeBuildQuestion,
+    'interval-math': makeMathQuestion,
+    'note-names': makeNoteNameQuestion,
+    'vor-vs-vers': makeVorVsVersQuestion,
+    'sekunden': makeSekundeQuestion,
+  };
+  S.current = makers[S.mode]();
+  renderQuestion();
+}
+
+function makeIntervalQuestion() {
+  const possible = INTERVALS.filter(iv => iv.steps < WHITES.length);
+  const iv = possible[Math.floor(Math.random() * possible.length)];
+  const maxLo = WHITES.length - 1 - iv.steps;
+  const lo = Math.floor(Math.random() * (maxLo + 1));
+  const hi = lo + iv.steps;
+  return {
+    type: 'interval',
+    answer: iv.name,
+    lo: WHITES[lo],
+    hi: WHITES[hi],
+    hint: `Von ${WHITES[lo].n} nach ${WHITES[hi].n}: ${iv.num} Stammtöne = ${iv.name}.`,
+  };
+}
+
+function makeBuildQuestion() {
+  // Prefer Sekunde–Oktave for building clarity
+  const pool = INTERVALS.filter(iv => iv.steps >= 1 && iv.steps <= 7);
+  const iv = pool[Math.floor(Math.random() * pool.length)];
+  const up = Math.random() < 0.55;
+  let loIdx, hiIdx;
+  if (up) {
+    const maxLo = WHITES.length - 1 - iv.steps;
+    loIdx = Math.floor(Math.random() * (maxLo + 1));
+    hiIdx = loIdx + iv.steps;
+  } else {
+    const minHi = iv.steps;
+    hiIdx = minHi + Math.floor(Math.random() * (WHITES.length - minHi));
+    loIdx = hiIdx - iv.steps;
+  }
+  const start = up ? WHITES[loIdx] : WHITES[hiIdx];
+  const target = up ? WHITES[hiIdx] : WHITES[loIdx];
+  const dirLabel = up ? 'aufwärts' : 'abwärts';
+  return {
+    type: 'build',
+    answer: target.n,
+    answerKey: target.k,
+    start,
+    target,
+    iv,
+    up,
+    prompt: `Ausgangspunkt: <b>${start.n}</b> · ${iv.name} ${dirLabel} – welcher Ton?`,
+    hint: `${start.n} ${up ? '+' : '−'} ${iv.name} = ${target.n}.`,
+  };
+}
+
+function makeMathQuestion() {
+  // Generate valid arithmetic with interval numbers 1–8
+  const ops = [
+    () => {
+      const a = 2 + Math.floor(Math.random() * 5); // 2–6
+      const b = 1 + Math.floor(Math.random() * Math.min(4, a - 1));
+      return { parts: [a, '-', b], result: a - b };
+    },
+    () => {
+      const a = 1 + Math.floor(Math.random() * 4);
+      const b = 1 + Math.floor(Math.random() * 4);
+      const sum = a + b;
+      if (sum > 8) return { parts: [a, '+', b, '-', (sum - 8)], result: 8 };
+      return { parts: [a, '+', b], result: sum };
+    },
+    () => {
+      const a = 3 + Math.floor(Math.random() * 4); // 3–6
+      const b = 2 + Math.floor(Math.random() * 3); // 2–4
+      const c = 1 + Math.floor(Math.random() * 3);
+      let r = a + b - c;
+      if (r < 1) { r = a - b + c; return { parts: [a, '-', b, '+', c], result: r }; }
+      if (r > 10) { r = a - b + 1; return { parts: [a, '-', b, '+', 1], result: r }; }
+      return { parts: [a, '+', b, '-', c], result: r };
+    },
+  ];
+  const expr = ops[Math.floor(Math.random() * ops.length)]();
+  const nameOf = n => (INTERVALS.find(i => i.num === n) || { name: String(n) }).name;
+  const answer = nameOf(expr.result);
+  const chips = expr.parts.map(p => {
+    if (typeof p === 'number') return `<span class="math-chip">${nameOf(p)} (${p})</span>`;
+    return `<span>${p}</span>`;
+  }).join('');
+  return {
+    type: 'math',
+    answer,
+    resultNum: expr.result,
+    chips,
+    hint: `Rechnung = ${expr.result} → ${answer}.`,
+  };
+}
+
+function makeNoteNameQuestion() {
+  const item = ACCIDENTAL_NOTES[Math.floor(Math.random() * ACCIDENTAL_NOTES.length)];
+  const note = WHITES.find(w => w.n === item.base) || WHITES[0];
+  // Build wrong options from same accidental family
+  const sameAcc = ACCIDENTAL_NOTES.filter(n => n.acc === item.acc && n.name !== item.name);
+  const wrong = shuffle(sameAcc).slice(0, 3).map(n => n.name);
+  while (wrong.length < 3) {
+    const extra = ACCIDENTAL_NOTES[Math.floor(Math.random() * ACCIDENTAL_NOTES.length)].name;
+    if (extra !== item.name && !wrong.includes(extra)) wrong.push(extra);
+  }
+  return {
+    type: 'note-name',
+    answer: item.name,
+    symbol: item.acc,
+    note,
+    choices: shuffle([item.name, ...wrong.slice(0, 3)]),
+    hint: item.explain,
+  };
+}
+
+function makeVorVsVersQuestion() {
+  const item = VOR_VS_VERS[Math.floor(Math.random() * VOR_VS_VERS.length)];
+  return {
+    type: 'vor-vs-vers',
+    answer: item.answer,
+    q: item.q,
+    choices: shuffle([item.answer, ...item.wrong]),
+    hint: item.hint,
+  };
+}
+
+function makeSekundeQuestion() {
+  const item = SECONDS[Math.floor(Math.random() * SECONDS.length)];
+  const lo = whiteByKey(item.lo);
+  const hi = whiteByKey(item.hi);
+  return {
+    type: 'sekunde',
+    answer: item.quality,
+    lo, hi,
+    tip: item.tip,
+    hint: item.tip,
+  };
+}
+
+function renderQuestion() {
+  const q = S.current;
+  const qCard = $id('q-card');
+  const aArea = $id('a-area');
+  qCard.innerHTML = '';
+  aArea.innerHTML = '';
+
+  if (q.type === 'interval') {
+    qCard.innerHTML = `
+      <p class="q-label">Welches Intervall siehst du?</p>
+      <div class="staff-wrap">${staffNotesSVG([q.lo, q.hi])}</div>
+      <div class="piano-wrap">${pianoSVG([q.lo.k, q.hi.k])}</div>`;
+    aArea.innerHTML = `
+      <p class="a-label">Wähle den Namen:</p>
+      <div class="choice-grid c2">${choiceButtons(intervalChoiceNames(q.answer), q.answer)}</div>`;
+  } else if (q.type === 'build') {
+    qCard.innerHTML = `
+      <p class="q-label">Intervall bauen</p>
+      <p class="q-prompt">${q.prompt}</p>
+      <div class="staff-wrap">${staffNotesSVG([q.start], -1, true)}</div>`;
+    const opts = buildNoteChoices(q.answer, q.start.n);
+    aArea.innerHTML = `
+      <p class="a-label">Zielton:</p>
+      <div class="choice-grid c4">${choiceButtons(opts, q.answer)}</div>`;
+  } else if (q.type === 'math') {
+    qCard.innerHTML = `
+      <p class="q-label">Intervall-Rechnung</p>
+      <p class="q-prompt">Setze die Zahlen ein und löse:</p>
+      <div class="math-row">${q.chips}<span>=</span><span class="math-chip">?</span></div>`;
+    const names = INTERVALS.filter(i => i.num >= 1 && i.num <= 10).map(i => i.name);
+    let wrong = shuffle(names.filter(n => n !== q.answer)).slice(0, 3);
+    aArea.innerHTML = `
+      <p class="a-label">Ergebnis-Intervall:</p>
+      <div class="choice-grid c2">${choiceButtons(shuffle([q.answer, ...wrong]), q.answer)}</div>`;
+  } else if (q.type === 'note-name') {
+    qCard.innerHTML = `
+      <p class="q-label">Wie heißt dieser Ton?</p>
+      <div class="staff-wrap">${staffAccidentalSVG(q.note, q.symbol)}</div>`;
+    aArea.innerHTML = `
+      <p class="a-label">Tonname:</p>
+      <div class="choice-grid c2">${choiceButtons(q.choices, q.answer)}</div>`;
+  } else if (q.type === 'vor-vs-vers') {
+    qCard.innerHTML = `
+      <p class="q-label">Vorzeichen oder Versetzung?</p>
+      <p class="q-prompt">${q.q}</p>`;
+    aArea.innerHTML = `
+      <p class="a-label">Antwort:</p>
+      <div class="choice-grid c2">${choiceButtons(q.choices, q.answer)}</div>`;
+  } else if (q.type === 'sekunde') {
+    qCard.innerHTML = `
+      <p class="q-label">Ist diese Sekunde groß oder klein?</p>
+      <div class="staff-wrap">${staffNotesSVG([q.lo, q.hi])}</div>
+      <p style="font-weight:800;color:var(--muted);font-size:.9rem">${q.lo.n} → ${q.hi.n}</p>`;
+    aArea.innerHTML = `
+      <p class="a-label">Qualität:</p>
+      <div class="choice-grid c2">
+        <button class="choice-btn" data-ans="groß" onclick="handleChoice('groß',this)">groß<br><span style="font-size:.75rem;font-weight:700;color:var(--muted)">Ganzton</span></button>
+        <button class="choice-btn" data-ans="klein" onclick="handleChoice('klein',this)">klein<br><span style="font-size:.75rem;font-weight:700;color:var(--muted)">Halbton</span></button>
+      </div>`;
+  }
+}
+
+function intervalChoiceNames(correct) {
+  const names = INTERVALS.map(i => i.name);
+  const wrong = shuffle(names.filter(n => n !== correct)).slice(0, 3);
+  return shuffle([correct, ...wrong]);
+}
+
+function buildNoteChoices(correct, startN) {
+  const letters = ['C','D','E','F','G','A','H'];
+  let wrong = shuffle(letters.filter(n => n !== correct)).slice(0, 3);
+  return shuffle([correct, ...wrong]);
+}
+
+function choiceButtons(choices, correct) {
+  return choices.map(c =>
+    `<button class="choice-btn" data-ans="${escapeAttr(c)}" onclick="handleChoice(this.dataset.ans,this)">${c}</button>`
+  ).join('');
+}
+
+function handleChoice(ans, btn) {
+  if (S.answered) return;
+  S.answered = true;
+  S.total++;
+  const correct = ans === S.current.answer;
+  if (correct) S.ok++;
+  updateScore();
+
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.ans === S.current.answer) b.classList.add('correct');
+    else if (b === btn && !correct) b.classList.add('wrong');
+  });
+
+  showFeedback(correct);
+}
+
+function showFeedback(correct) {
+  const fb = $id('feedback');
+  if (correct) {
+    fb.textContent = '✓ Richtig!';
+    fb.className = 'feedback ok';
+    launchConfetti();
+  } else {
+    const hint = S.current.hint ? ` ${S.current.hint}` : ` Richtig ist: ${S.current.answer}.`;
+    fb.textContent = `✗ Leider falsch.${hint}`;
+    fb.className = 'feedback err';
+  }
+  const isLast = S.total >= ROUND_SIZE;
+  $id('btn-next').textContent = isLast ? 'Zum Ergebnis →' : 'Weiter →';
+  $id('btn-next').className = 'next-btn';
+}
+
+// ══════════════════════════════════════════════
+// SVG: STAFF
+// ══════════════════════════════════════════════
+function staffNotesSVG(notes, highlightIdx, singleLabel) {
+  const xs = notes.length === 1 ? [170]
+    : notes.length === 2 ? [130, 210]
+    : [110, 170, 230];
+
+  let s = `<svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect width="300" height="110" fill="#fffdf7" rx="8"/>`;
+  for (const ly of LINE_YS)
+    s += `<line x1="52" y1="${ly}" x2="288" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+  s += `<text x="4" y="80" font-size="76" font-family="serif" fill="#333">𝄞</text>`;
+
+  notes.forEach((note, i) => {
+    const nx = xs[i];
+    const ny = note.y;
+    const isHL = highlightIdx === i;
+    for (const ly of (note.ledger || []))
+      s += `<line x1="${nx-16}" y1="${ly}" x2="${nx+16}" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+
+    const fill = isHL ? '#4a9e6e' : '#1a1a1a';
+    const stemUp = ny > 50;
+    if (stemUp)
+      s += `<line x1="${nx+NR}" y1="${ny}" x2="${nx+NR}" y2="${ny-36}" stroke="${fill}" stroke-width="1.8"/>`;
+    else
+      s += `<line x1="${nx-NR}" y1="${ny}" x2="${nx-NR}" y2="${ny+36}" stroke="${fill}" stroke-width="1.8"/>`;
+    s += `<ellipse cx="${nx}" cy="${ny}" rx="${NR}" ry="${NR*0.72}" transform="rotate(-12 ${nx} ${ny})" fill="${fill}"/>`;
+    if (singleLabel || notes.length === 1) {
+      s += `<text x="${nx}" y="104" text-anchor="middle" font-size="12" font-family="Nunito,sans-serif" font-weight="800" fill="#8a7a5a">${note.n}</text>`;
+    }
+  });
+
+  s += `</svg>`;
+  return s;
+}
+
+function staffAccidentalSVG(note, symbol) {
+  const nx = 170;
+  const ny = note.y;
+  let s = `<svg viewBox="0 0 300 110" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect width="300" height="110" fill="#fffdf7" rx="8"/>`;
+  for (const ly of LINE_YS)
+    s += `<line x1="52" y1="${ly}" x2="288" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+  s += `<text x="4" y="80" font-size="76" font-family="serif" fill="#333">𝄞</text>`;
+  for (const ly of (note.ledger || []))
+    s += `<line x1="${nx-16}" y1="${ly}" x2="${nx+16}" y2="${ly}" stroke="#444" stroke-width="1.5"/>`;
+  s += `<text x="${nx-24}" y="${ny+10}" font-size="30" font-family="serif" fill="#1a1a1a" text-anchor="middle">${symbol}</text>`;
+  const stemUp = ny > 50;
+  if (stemUp)
+    s += `<line x1="${nx+NR}" y1="${ny}" x2="${nx+NR}" y2="${ny-36}" stroke="#222" stroke-width="1.8"/>`;
+  else
+    s += `<line x1="${nx-NR}" y1="${ny}" x2="${nx-NR}" y2="${ny+36}" stroke="#222" stroke-width="1.8"/>`;
+  s += `<ellipse cx="${nx}" cy="${ny}" rx="${NR}" ry="${NR*0.72}" transform="rotate(-12 ${nx} ${ny})" fill="#1a1a1a"/>`;
+  s += `</svg>`;
+  return s;
+}
+
+function pianoSVG(highlightKeys) {
+  const hl = new Set(Array.isArray(highlightKeys) ? highlightKeys : (highlightKeys ? [highlightKeys] : []));
+  const ws = WHITES;
+  const bs = BLACKS;
+  const totalW = ws.length * WKW;
+  const svgH = WKH + 16;
+
+  let s = `<svg viewBox="0 0 ${totalW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="max-width:${Math.min(totalW,560)}px;width:100%">`;
+  s += `<rect width="${totalW}" height="${svgH}" fill="#f5f0e8" rx="6"/>`;
+
+  ws.forEach((key, i) => {
+    const fill = hl.has(key.k) ? '#f5c842' : '#fff';
+    const stroke = hl.has(key.k) ? '#c49a0a' : '#bbb';
+    const sw = hl.has(key.k) ? 2 : 1;
+    s += `<rect x="${i*WKW+1}" y="8" width="${WKW-2}" height="${WKH}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" rx="3"/>`;
+    s += `<text x="${i*WKW+WKW/2}" y="${8+WKH-7}" text-anchor="middle" font-size="10" font-family="Nunito,sans-serif" font-weight="700" fill="#888">${key.n}</text>`;
+  });
+
+  bs.forEach(({i, k}) => {
+    const fill = hl.has(k) ? '#c49a0a' : '#1a1a1a';
+    const x = (i+1)*WKW - BKW/2;
+    s += `<rect x="${x}" y="8" width="${BKW}" height="${BKH}" fill="${fill}" stroke="#000" stroke-width="1" rx="2"/>`;
+  });
+
+  s += `</svg>`;
+  return s;
+}
+
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999';
+  document.body.appendChild(canvas);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#f5c842','#4a9e6e','#3b6dbf','#e85d2f','#7c4dba','#ff6b9d','#00c9a7'];
+  const pieces = Array.from({length: 70}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -100 - 10,
+    r: Math.random() * 7 + 3,
+    c: colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 5,
+    vy: Math.random() * 4 + 2,
+    angle: Math.random() * Math.PI * 2,
+    va: (Math.random() - 0.5) * 0.25,
+  }));
+  const start = Date.now();
+  let frame;
+  (function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const elapsed = Date.now() - start;
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.angle += p.va;
+      const alpha = elapsed < 1500 ? 1 : Math.max(0, 1 - (elapsed - 1500) / 500);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.r, -p.r * 0.5, p.r * 2, p.r);
+      ctx.restore();
+    });
+    if (elapsed < 2000) frame = requestAnimationFrame(draw);
+    else { cancelAnimationFrame(frame); canvas.remove(); }
+  })();
+}
+</script>
+</body>
+</html>
